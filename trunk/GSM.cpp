@@ -1,5 +1,5 @@
 /*
-    GSM.cpp - library for the GSM Playground - GSM Shield for Arduino
+   GSM.cpp - library for the GSM Playground - GSM Shield for Arduino
     www.hwkitchen.com
 
     This program is free software: you can redistribute it and/or modify

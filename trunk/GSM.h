@@ -42,6 +42,7 @@
 #define COMM_BUF_LEN        200
 
 #include "AT.h"
+#include "GPRS.h"
 
 
 // pins definition
@@ -90,7 +91,7 @@
 
 
 
-class GSM : public AT 
+class GSM : public GPRS
 {
   public:
 

@@ -236,7 +236,7 @@ class AT
 
     // variables connected with communication buffer
     byte *p_comm_buf;               // pointer to the communication buffer
-    byte comm_buf_len;              // num. of characters in the buffer
+    uint16_t comm_buf_len;          // num. of characters in the buffer
     byte rx_state;                  // internal state of rx state machine    
     uint16_t start_reception_tmout; // max tmout for starting reception
     uint16_t interchar_tmout;       // previous time in msec.
