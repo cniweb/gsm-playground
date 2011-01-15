@@ -250,8 +250,8 @@ an example of usage:
         GSM gsm;
         gsm.OpenSocket(TCP, 80, "www.google.com", 0, 0); 
 **********************************************************/
-char GPRS::OpenSocket(byte socket_type, byte remote_port, char* remote_addr,
-                     byte closure_type, byte local_port)
+char GPRS::OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
+                     byte closure_type, uint16_t local_port)
 {
   char ret_val = -1;
   char cmd[100];
@@ -354,6 +354,16 @@ uint16_t  GPRS::RcvData(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
   if (comm_buf_len) *ptr_to_rcv_data = comm_buf;
   else *ptr_to_rcv_data = NULL;
 
+  // check <CR><LF>NO CARRIER<CR><LF>
+  // in case this string was received => socked is closed
+  if (comm_buf_len) { 
+    if (StrInBin(comm_buf, "\r\nNO CARRIER\r\n", comm_buf_len) != -1) {
+      // NO CARRIER was received => socket was closed from the host side
+      // we can set the communication line to the FREE state
+      SetCommLineStatus(CLS_FREE);
+    }
+  }
+
   return (comm_buf_len);
 }
 
@@ -382,8 +392,13 @@ char GPRS::CloseSocket(void)
   byte i;
   byte* rx_data;
 
-  if (CLS_DATA != GetCommLineStatus()) return (ret_val);
+  if (CLS_FREE == GetCommLineStatus()) {
+    ret_val = 1; // socket was already closed
+    return (ret_val);
+  }
 
+  // we are in the DATA state so try to close the socket
+  // ---------------------------------------------------
   for (i = 0; i < 3; i++) {
     // make dalay 500msec. before escape seq. "+++"
     RcvData(1500, 100, &rx_data); // trick - function is used for generation a delay
@@ -413,4 +428,40 @@ char GPRS::CloseSocket(void)
   }
 
   return (ret_val);
+}
+
+/**********************************************************
+Method used for finding string in the binary data buffer
+
+p_bin_data: pointer to the binary "buffer" where a string should be find
+p_string_to_search: pointer to the string which is supposed to be find
+size: size of the binary "buffer"
+
+return: 
+        -1    - string was not found
+        > -1  - first position in the buffer where string which was found started
+**********************************************************/
+signed short GPRS::StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned short size)
+{
+  uint16_t pos_1, pos_2, pos_before_match;
+
+  pos_1 = 0;
+  pos_2 = 0;
+  pos_before_match = 0;
+  if (size) {
+    while (pos_1 < size) {
+      if (p_string_to_search[pos_2] == p_bin_data[pos_1]) {
+        pos_2++;
+        pos_1++;
+        if (p_string_to_search[pos_2] == 0) return (pos_before_match);
+      }
+      else {
+        pos_2 = 0; // from the start of p_string_to_search
+        pos_before_match++;
+        pos_1 = pos_before_match;
+      }
+    }
+    return (-1);
+  }
+  else return (-1);
 }
