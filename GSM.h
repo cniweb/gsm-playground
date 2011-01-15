@@ -17,16 +17,27 @@
 */
 
 
+
 #ifndef __GSM
 #define __GSM
 
 #include "WProgram.h"
 
-#define GSM_LIB_VERSION 101 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 102 // library version X.YY (e.g. 1.00)
+/*
+    Version
+    --------------------------------------------------------------------------
+    100, 101  Initial versions 
+    --------------------------------------------------------------------------
+    102       TurnOn() method has been modified such a way that switch on   
+              sequence is repeated until there is a response from GSM module
+    --------------------------------------------------------------------------
+*/
 
-// if defined - debug print is enabled with possibility to print out 
-// debug texts to the terminal program
-//#define DEBUG_PRINT
+
+// in case it is required to use DEBUG_PRINT sections in this module
+// please enable this constant in AT.h file
+
 
 // if defined - debug LED is enabled, otherwise debug LED is disabled
 //#define DEBUG_LED_ENABLED

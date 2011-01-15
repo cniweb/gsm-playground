@@ -60,14 +60,12 @@ void loop()
   for (byte i = 0; i < 3; i++) {
     // open the TCP socket
     ret_val = gsm.OpenSocket(TCP_SOCKET, 80, "www.google.com", 0, 0);
-    //ret_val = gsm.OpenSocket(TCP_SOCKET, 80, "www.bluehost.com", 0, 0);
     if (ret_val == 1) {
       // socket was successfully opened
       // so we can exchange data
       // here we are trying GET request
       // GET request must be finished by sequence <CR><LF><CR><LF> == \r\n\r\n
       gsm.SendData("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n");
-      //gsm.SendData("GET / HTTP/1.0\r\nHost: www.bluehost.com\r\n\r\n");
       // and wait for first incomming data max. 20sec.
       // receiving will be finished either buffer is full 
       // or there is no other incomming byte 1000msec. from last receiving byte

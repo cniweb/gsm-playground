@@ -14,6 +14,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+
+
+#ifndef __AT_h
+#define __AT_h
+
+#include "WProgram.h"
+
+#define AT_LIB_VERSION 010 // library version X.YY (e.g. 1.00)
 /*
     Version
     ---------------------------------
@@ -34,12 +43,10 @@
 */
 
 
-#ifndef __AT_h
-#define __AT_h
+//#define DEBUG_PRINT
 
-#include "WProgram.h"
 
-#define AT_LIB_VERSION 010 // library version X.YY (e.g. 1.00)
+
 
 // length for the internal communication buffer
 #ifndef COMM_BUF_LEN

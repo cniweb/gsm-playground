@@ -81,14 +81,15 @@ byte GSM::IsInitialized(void)
 /**********************************************************
   Checks if the GSM module is responding 
   to the AT command
-  - if YES nothing is made 
-  - if NO GSM module is turned on 
+  - if YES  nothing is made 
+  - if NO   switch on sequence is repeated until there is a response
+            from GSM module
 **********************************************************/
 void GSM::TurnOn(void)
 {
   SetCommLineStatus(CLS_ATCMD);
 
-  if (AT_RESP_ERR_NO_RESP == SendATCmdWaitResp("AT", 500, 20, "OK", 5)) {
+  while (AT_RESP_ERR_NO_RESP == SendATCmdWaitResp("AT", 500, 20, "OK", 5)) {
     // there is no response => turn on the module
   
 #ifdef DEBUG_PRINT
@@ -97,7 +98,7 @@ void GSM::TurnOn(void)
     DebugPrint("DEBUG: GSM module is off\r\n", 0);
 #endif
     
-    // generate turn on pulse
+    // generate switch on pulse
     digitalWrite(GSM_ON, HIGH);
     delay(1200);
     digitalWrite(GSM_ON, LOW);
