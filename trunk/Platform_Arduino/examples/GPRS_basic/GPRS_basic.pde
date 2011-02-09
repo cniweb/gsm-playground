@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include "GSM.h"  
 
 
@@ -35,6 +34,16 @@ void setup()
   gsm.InitSerLine(115200);
   // turn on GSM module
   gsm.TurnOn();
+
+  #ifdef DEBUG_PRINT
+    // print library version
+    gsm.DebugPrint("DEBUG AT library version: ", 0);
+    gsm.DebugPrint(gsm.LibVer(), 0);
+    gsm.DebugPrint("DEBUG GSM library version: ", 0);
+    gsm.DebugPrint(gsm.GSMLibVer(), 0);
+    gsm.DebugPrint("DEBUG GPRS library version: ", 0);
+    gsm.DebugPrint(gsm.GPRSLibVer(), 1);
+  #endif
 
   // wait until a GSM module is registered in the GSM network
   while (!gsm.IsRegistered()) {

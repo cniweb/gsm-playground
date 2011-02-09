@@ -19,10 +19,18 @@
 
 #ifndef __AT_h
 #define __AT_h
-
 #include "WProgram.h"
 
-#define AT_LIB_VERSION 010 // library version X.YY (e.g. 1.00)
+/******************************* IMPORTANT ***********************************
+Keep in mind that DEBUG PRINT has only very limited functionality
+and can not be 100% guaranteed becuase all debug strings are sent also to the 
+GSM module and thus can be interpreted as AT commands.
+*****************************************************************************/
+//#define DEBUG_PRINT
+
+
+
+#define AT_LIB_VERSION 100 // library version X.YY (e.g. 1.00) 100 means 1.00
 /*
     Version
     ---------------------------------
@@ -36,15 +44,14 @@
                            GSM-Library 1.01 (www.hwkitchen.com) into two parts
                            the AT-Library and the GSM-Library. Now the AT-Library 
                            can be used by other devices (more platformindependant)
+
+    100                    release 1.00
     
+
     ToDo
     ---------------------------------
     - RX/TX-Pin should be realised with Softserial or normal Serial.
 */
-
-
-//#define DEBUG_PRINT
-
 
 
 
@@ -184,6 +191,7 @@ enum getsms_ret_val_enum
 class AT
 {
   public:
+    uint16_t comm_buf_len;          // num. of characters in the buffer
     byte comm_buf[COMM_BUF_LEN+1];  // communication buffer +1 for 0x00 termination
     
 
@@ -211,6 +219,7 @@ class AT
     
     
     // SMS's methods 
+    char InitSMSMemory(void);
     char SendSMS(char *number_str, char *message_str);
     char SendSMS(byte sim_phonebook_position, char *message_str);
     char IsSMSPresent(byte required_status);
@@ -238,22 +247,17 @@ class AT
                char const *response_string,
                byte no_of_attempts);
 
-//  private:
+  private:
     byte comm_line_status;
 
     // variables connected with communication buffer
-    byte *p_comm_buf;               // pointer to the communication buffer
-    uint16_t comm_buf_len;          // num. of characters in the buffer
+    byte *p_comm_buf;               // pointer to the communication buffer   
     byte rx_state;                  // internal state of rx state machine    
     uint16_t start_reception_tmout; // max tmout for starting reception
     uint16_t interchar_tmout;       // previous time in msec.
     unsigned long prev_time;        // previous time in msec.
     byte  flag_read_when_buffer_full; // flag
-
-    // last value of speaker volume
-    byte last_speaker_volume; 
-
-    char InitSMSMemory(void);
+    
 };
 
 

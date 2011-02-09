@@ -16,10 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "GSM.h"  
 
 #ifndef DEBUG_PRINT
-  #error "!!! It is necessary to enable DEBUG_PRINT macro in the GSM.h !!!"
+  #error "!!! It is necessary to enable DEBUG_PRINT macro in the AT.h !!!"
 #endif
 
 
@@ -39,8 +40,10 @@ void setup()
   
   #ifdef DEBUG_PRINT
     // print library version
-    gsm.DebugPrint("DEBUG Library version: ", 0);
+    gsm.DebugPrint("DEBUG AT library version: ", 0);
     gsm.DebugPrint(gsm.LibVer(), 1);
+    gsm.DebugPrint("DEBUG GSM library version: ", 0);
+    gsm.DebugPrint(gsm.GSMLibVer(), 1);
   #endif
 }
 
@@ -67,8 +70,8 @@ void loop()
 #ifdef DEBUG_PRINT
     // print out some explaining tring
     // -------------------------------
-    gsm.DebugPrint("Response on previous AT command is:\r\n", 0);
-    gsm.DebugPrint("===================================\r\n", 0);
+    gsm.DebugPrint("Response to the previous command is:\r\n", 0);
+    gsm.DebugPrint("====================================\r\n", 0);
     // and now finaly print out the internal communication buffer content
     // intrenal communication buffer is automatically finished by the 0x00
     // inside the library function SendATCmdWaitResp() so it is possible

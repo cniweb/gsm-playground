@@ -32,6 +32,9 @@
     102       TurnOn() method has been modified such a way that switch on   
               sequence is repeated until there is a response from GSM module
     --------------------------------------------------------------------------
+    103       GSM class inherits only from AT class to avoid repeated 
+              inheritance in future (in case other module will be added, like GPS)
+    --------------------------------------------------------------------------
 */
 
 
@@ -43,8 +46,8 @@
 //#define DEBUG_LED_ENABLED
 
 // if defined - SMSs are not send(are finished by the character 0x1b
-// which causes that SMS are not send)
-// by this way it is possible to develop program without paying for the SMSs 
+// which causes that SMS are not sent)
+// by this way it is possible to develop program without paying for SMSs 
 //#define DEBUG_SMS_ENABLED
 
 
@@ -53,7 +56,8 @@
 #define COMM_BUF_LEN        200
 
 #include "AT.h"
-#include "GPRS.h"
+#include "GSM_GPRS.h"
+
 
 
 // pins definition
@@ -102,16 +106,19 @@
 
 
 
-class GSM : public GPRS
+class GSM : public AT
 {
   public:
 
-    // library version
-    int LibVer(void);
+    //=================================================================
+    // general GSM section: implementaion of methods are placed
+    //                      in the GSM.cpp  
+    //=================================================================
     // constructor
     GSM(void);
 
-
+    // library version
+    int GSMLibVer(void);
     // turns on GSM module
     void TurnOn(void);
     // sends some initialization parameters
@@ -169,12 +176,39 @@ class GSM : public GPRS
     int GetTemp(void);
 
 
+    // Support functions
+    char *ReadToken(char *str, char *buf, char delimiter);
+    char *Skip(char *str, char match);
+
+
+
+    //=================================================================
+    // GPRS section: implementaion of methods are placed
+    //                      in the GSM_GPRS.cpp  
+    //=================================================================
+    int GPRSLibVer(void);
+    char InitGPRS(char* apn, char* login, char* password);
+    char EnableGPRS(byte open_mode);
+    char DisableGPRS(void);
+    char OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
+                    byte closure_type, uint16_t local_port);
+    char CloseSocket(void);
+    void SendData(char* str_data);
+    void SendData(byte* data_buffer, unsigned short size);
+    uint16_t RcvData(uint16_t start_comm_tmout, uint16_t max_interchar_tmout, byte** ptr_to_rcv_data);
+    signed short StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned short size);
+
+
+
 
   private:
-
+    //=================================================================
+    // Private section for general GSM
+    //=================================================================
     // global status - bits are used for representation of states
     byte module_status;
-
+    // last value of speaker volume
+    byte last_speaker_volume; 
 
 };
 #endif
