@@ -1,5 +1,5 @@
 /*
- GPRS.cpp - GPRS library for the GSM Playground - GSM Shield for Arduino
+  GSM_GPRS.c - GPRS library for the GSM Playground - GSM Shield for Arduino
   www.hwkitchen.com
 
   This program is free software: you can redistribute it and/or modify
@@ -15,19 +15,15 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */  
-#include "GPRS.h"
+
+#include "GSM_GPRS.h"
+#include "GSM.h"
+
 
 extern "C" {
   #include <string.h>
 }
 
-/**********************************************************
-Constructor
-
-**********************************************************/
-GPRS::GPRS(void)
-{
-}
 
 /**********************************************************
 Method returns GPRS library version
@@ -35,7 +31,7 @@ Method returns GPRS library version
 return val: 010 means library version 0.10
             101 means library version 1.01
 **********************************************************/
-int GPRS::LibVer(void)
+int GSM::GPRSLibVer(void)
 {
   return (GPRS_LIB_VERSION);
 }
@@ -67,7 +63,7 @@ an example of usage:
         GSM gsm;
         gsm.InitGPRS("internet", "", ""); 
 **********************************************************/
-char GPRS::InitGPRS(char* apn, char* login, char* password)
+char GSM::InitGPRS(char* apn, char* login, char* password)
 {
   char ret_val = -1;
   char cmd[100];
@@ -134,7 +130,7 @@ an example of usage:
           // and we can communicate if necessary
         }
 **********************************************************/
-char GPRS::EnableGPRS(byte open_mode)
+char GSM::EnableGPRS(byte open_mode)
 {
   char ret_val = -1;
 
@@ -198,7 +194,7 @@ an example of usage:
         GSM gsm;
         gsm.DisableGPRS(); 
 **********************************************************/
-char GPRS::DisableGPRS(void)
+char GSM::DisableGPRS(void)
 {
   char ret_val = -1;
 
@@ -250,7 +246,7 @@ an example of usage:
         GSM gsm;
         gsm.OpenSocket(TCP, 80, "www.google.com", 0, 0); 
 **********************************************************/
-char GPRS::OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
+char GSM::OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
                      byte closure_type, uint16_t local_port)
 {
   char ret_val = -1;
@@ -312,12 +308,12 @@ an example of usage:
         gsm.SendData(buffer, 20); 
 
 **********************************************************/
-void GPRS::SendData(char* str_data)
+void GSM::SendData(char* str_data)
 {
   Serial.print(str_data);
 }
 
-void GPRS::SendData(byte* data_buffer, unsigned short size)
+void GSM::SendData(byte* data_buffer, unsigned short size)
 {
   Serial.write(data_buffer, size);
 }
@@ -340,7 +336,7 @@ an example of usage:
         }
 
 **********************************************************/
-uint16_t  GPRS::RcvData(uint16_t start_comm_tmout, uint16_t max_interchar_tmout, byte** ptr_to_rcv_data)
+uint16_t  GSM::RcvData(uint16_t start_comm_tmout, uint16_t max_interchar_tmout, byte** ptr_to_rcv_data)
 {
   byte status;
 
@@ -386,7 +382,7 @@ an example of usage:
         GSM gsm;
         gsm.CloseSocket(); 
 **********************************************************/
-char GPRS::CloseSocket(void)
+char GSM::CloseSocket(void)
 {
   char ret_val = -1;
   byte i;
@@ -441,7 +437,7 @@ return:
         -1    - string was not found
         > -1  - first position in the buffer where string which was found started
 **********************************************************/
-signed short GPRS::StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned short size)
+signed short GSM::StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned short size)
 {
   uint16_t pos_1, pos_2, pos_before_match;
 
@@ -465,3 +461,4 @@ signed short GPRS::StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned
   }
   else return (-1);
 }
+

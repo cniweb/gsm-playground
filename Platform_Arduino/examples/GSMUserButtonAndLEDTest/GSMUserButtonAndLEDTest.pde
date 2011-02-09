@@ -30,8 +30,10 @@ void setup()
   
   #ifdef DEBUG_PRINT
     // print library version
-    gsm.DebugPrint("DEBUG Library version: ", 0);
-    gsm.DebugPrint(gsm.LibVer(), 1);
+    gsm.DebugPrint("DEBUG AT library version: ", 0);
+    gsm.DebugPrint(gsm.LibVer(), 0);
+    gsm.DebugPrint("DEBUG GSM library version: ", 0);
+    gsm.DebugPrint(gsm.GSMLibVer(), 1);
   #endif
 }
 

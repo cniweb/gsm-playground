@@ -31,7 +31,7 @@ Method returns GSM library version
 return val: 100 means library version 1.00
             101 means library version 1.01
 **********************************************************/
-int GSM::LibVer(void)
+int GSM::GSMLibVer(void)
 {
   return (GSM_LIB_VERSION);
 }
@@ -103,6 +103,8 @@ void GSM::TurnOn(void)
     delay(1200);
     digitalWrite(GSM_ON, LOW);
     delay(1200);
+
+    delay(1500); // wait before next try
   }
   SetCommLineStatus(CLS_FREE);
 
@@ -1021,4 +1023,42 @@ int GSM::GetTemp(void)
  
   SetCommLineStatus(CLS_FREE);
   return (ret_val);
+}
+
+
+/**********************************************************
+Functions for manipulation with strings
+**********************************************************/
+/*
+ * Skips the string until the given char is found.
+ */
+char *GSM::Skip(char *str, char match) {
+  byte c = 0;
+  while (true) {
+    c = *str++;
+    if ((c == match) || (c == '\0')) {
+      break;
+    }
+  }
+  return str;
+}
+
+
+/*
+ * Reads a token from the given string. Token is seperated by the 
+ * given delimiter.
+ */
+char *GSM::ReadToken(char *str, char *buf, char delimiter) {
+  byte c = 0;
+  while (true) {
+    c = *str++;
+    if ((c == delimiter) || (c == '\0')) {
+      break;
+    }
+    else if (c != ' ') {
+      *buf++ = c;
+    }
+  }
+  *buf = '\0';
+  return str;
 }

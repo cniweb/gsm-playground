@@ -27,6 +27,8 @@
                            GSM-Library 1.01 (www.hwkitchen.com) into two parts
                            the AT-Library and the GSM-Library. Now the AT-Library 
                            can be used by other devices (more platformindependant)
+
+    100                    release 1.00
     
     ToDo
     ---------------------------------
@@ -120,8 +122,6 @@ int AT::LibVer(void)
 
 AT::AT(void)
 {
-  // initialization of speaker volume
-  last_speaker_volume = 0; 
 }
 
 /**********************************************************
