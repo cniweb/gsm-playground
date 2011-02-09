@@ -23,7 +23,7 @@
 
 #include "WProgram.h"
 
-#define GSM_LIB_VERSION 102 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 103 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
