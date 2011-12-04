@@ -92,11 +92,6 @@ void GSM::TurnOn(void)
   while (AT_RESP_ERR_NO_RESP == SendATCmdWaitResp("AT", 500, 20, "OK", 5)) {
     // there is no response => turn on the module
   
-#ifdef DEBUG_PRINT
-    // parameter 0 - because module is off so it is not necessary 
-    // to send finish AT<CR> here
-    DebugPrint("DEBUG: GSM module is off\r\n", 0);
-#endif
     
     // generate switch on pulse
     digitalWrite(GSM_ON, HIGH);
@@ -104,7 +99,21 @@ void GSM::TurnOn(void)
     digitalWrite(GSM_ON, LOW);
     delay(1200);
 
-    delay(1500); // wait before next try
+#ifdef DEBUG_PRINT
+    // parameter 0 - because module is off so it is not necessary 
+    // to send finish AT<CR> here
+    DebugPrint("DEBUG: GSM module is off\r\n", 0);
+#endif
+
+    // and reset the module
+    digitalWrite(GSM_RESET, HIGH);
+    delay(400);
+    digitalWrite(GSM_RESET, LOW);
+    delay(500);
+    
+    
+
+    delay(3000); // wait before next try
   }
   SetCommLineStatus(CLS_FREE);
 
