@@ -25,7 +25,7 @@ GSM gsm;
 signed char ret_val;
 uint16_t num_of_rx_bytes;
 byte* ptr_to_data;
-byte buffer[400];
+byte buffer[COMM_BUF_LEN];
 
 
 void setup()
