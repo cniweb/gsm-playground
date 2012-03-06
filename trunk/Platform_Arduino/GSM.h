@@ -21,7 +21,7 @@
 #ifndef __GSM
 #define __GSM
 
-#include "WProgram.h"
+#include "Arduino.h"
 
 #define GSM_LIB_VERSION 103 // library version X.YY (e.g. 1.00)
 /*
