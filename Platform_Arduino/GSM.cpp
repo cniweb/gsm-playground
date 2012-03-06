@@ -17,7 +17,7 @@
 */
 
 
-#include "WProgram.h"
+#include "Arduino.h"
 #include "GSM.h"
 
 extern "C" {

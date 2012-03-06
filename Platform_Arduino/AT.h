@@ -19,7 +19,7 @@
 
 #ifndef __AT_h
 #define __AT_h
-#include "WProgram.h"
+#include "Arduino.h"
 
 /******************************* IMPORTANT ***********************************
 Keep in mind that DEBUG PRINT has only very limited functionality
