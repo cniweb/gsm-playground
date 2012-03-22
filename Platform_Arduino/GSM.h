@@ -23,7 +23,7 @@
 
 #include "Arduino.h"
 
-#define GSM_LIB_VERSION 103 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 104 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
@@ -34,6 +34,9 @@
     --------------------------------------------------------------------------
     103       GSM class inherits only from AT class to avoid repeated 
               inheritance in future (in case other module will be added, like GPS)
+    --------------------------------------------------------------------------
+    104       - SMS stuff and Call stuff added from the AT.h class
+                to clean up AT.h
     --------------------------------------------------------------------------
 */
 
@@ -105,6 +108,63 @@
 #define AT_DELAY                    500
 
 
+enum registration_ret_val_enum 
+{
+  REG_NOT_REGISTERED = 0,
+  REG_REGISTERED,
+  REG_NO_RESPONSE,
+  REG_COMM_LINE_BUSY,
+    
+  REG_LAST_ITEM
+};
+
+// SMS methods related enums 
+enum sms_type_enum
+{
+  SMS_UNREAD,
+  SMS_READ,
+  SMS_ALL,
+
+  SMS_LAST_ITEM
+};
+
+enum getsms_ret_val_enum
+{
+  GETSMS_NO_SMS   = 0,
+  GETSMS_UNREAD_SMS,
+  GETSMS_READ_SMS,
+  GETSMS_OTHER_SMS,
+
+  GETSMS_NOT_AUTH_SMS,
+  GETSMS_AUTH_SMS,
+
+  GETSMS_LAST_ITEM
+};
+
+
+// Call methods related enums 
+enum call_ret_val_enum
+{
+  CALL_NONE = 0,
+  CALL_INCOM_VOICE,
+  CALL_ACTIVE_VOICE,
+  CALL_INCOM_VOICE_AUTH,
+  CALL_INCOM_VOICE_NOT_AUTH,
+  CALL_INCOM_DATA_AUTH,
+  CALL_INCOM_DATA_NOT_AUTH,
+  CALL_ACTIVE_DATA,
+  CALL_OTHERS,
+  CALL_NO_RESPONSE,
+  CALL_COMM_LINE_BUSY,
+
+  CALL_LAST_ITEM
+};
+
+
+
+
+
+
 
 class GSM : public AT
 {
@@ -136,7 +196,29 @@ class GSM : public AT
     byte IsRegistered(void);
     // returns whether complete initialization was made
     byte IsInitialized(void);
-    // finds out the status of call
+
+    // -----------
+    // SMS methods 
+    // -----------
+    char InitSMSMemory(void);
+    char SendSMS(char *number_str, char *message_str);
+    char SendSMS(byte sim_phonebook_position, char *message_str);
+    char IsSMSPresent(byte required_status);
+    char GetSMS(byte position, char *phone_number, char *SMS_text, byte max_SMS_len);
+    char GetAuthorizedSMS(byte position, char *phone_number, char *SMS_text, byte max_SMS_len,
+                          byte first_authorized_pos, byte last_authorized_pos);
+    char DeleteSMS(byte position);
+
+    // -----------------
+    // Phonebook methods
+    // -----------------
+    char GetPhoneNumber(byte position, char *phone_number);
+    char WritePhoneNumber(byte position, char *phone_number);
+    char ComparePhoneNumber(byte position, char *phone_number);
+
+    // ------------
+    // Call methods
+    // ------------
     byte CallStatus(void);
     byte CallStatusWithAuth(char *phone_number,
                             byte first_authorized_pos, byte last_authorized_pos);

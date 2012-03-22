@@ -28,29 +28,21 @@ GSM module and thus can be interpreted as AT commands.
 *****************************************************************************/
 //#define DEBUG_PRINT
 
-
-
-#define AT_LIB_VERSION 100 // library version X.YY (e.g. 1.00) 100 means 1.00
+#define AT_LIB_VERSION 101 // library version X.YY (e.g. 1.00) 100 means 1.00
 /*
     Version
-    ---------------------------------
-    The AT-Library was based on the GSM-Library from www.hwkitchen.com 
-    Some functions came from the sserial2mobile (http://code.google.com/p/sserial2mobile/)
-    The GSM-Library now links this AT-Library. 
-    The sserial2mobile-Library now links this AT-Library.
-    
-    AT_LIB_VERSION
+    -------------------------------------------------------------------------------
     010   Beta-Release     Stefan Huber (signalwerk.ch) splitted the 
                            GSM-Library 1.01 (www.hwkitchen.com) into two parts
                            the AT-Library and the GSM-Library. Now the AT-Library 
                            can be used by other devices (more platformindependant)
-
+    -------------------------------------------------------------------------------
     100                    release 1.00
+    -------------------------------------------------------------------------------
+    101                    -AT class now covers only communication related stuff
+                           -SMS and Call related stuff was moved to the GSM class
+    -------------------------------------------------------------------------------
     
-
-    ToDo
-    ---------------------------------
-    - RX/TX-Pin should be realised with Softserial or normal Serial.
 */
 
 
@@ -103,16 +95,6 @@ GSM module and thus can be interpreted as AT commands.
 #define RX_NOT_STARTED      0
 #define RX_ALREADY_STARTED  1
 
-// SMS type 
-// use by method IsSMSPresent()
-enum sms_type_enum
-{
-  SMS_UNREAD,
-  SMS_READ,
-  SMS_ALL,
-
-  SMS_LAST_ITEM
-};
 
 enum comm_line_status_enum 
 {
@@ -122,6 +104,7 @@ enum comm_line_status_enum
   CLS_DATA,   // for the future - line is used in the CSD or GPRS communication  
   CLS_LAST_ITEM
 };
+
 
 enum rx_state_enum 
 {
@@ -143,48 +126,6 @@ enum at_resp_enum
 
   AT_RESP_LAST_ITEM
 };
-
-enum registration_ret_val_enum 
-{
-  REG_NOT_REGISTERED = 0,
-  REG_REGISTERED,
-  REG_NO_RESPONSE,
-  REG_COMM_LINE_BUSY,
-    
-  REG_LAST_ITEM
-};
-
-enum call_ret_val_enum
-{
-  CALL_NONE = 0,
-  CALL_INCOM_VOICE,
-  CALL_ACTIVE_VOICE,
-  CALL_INCOM_VOICE_AUTH,
-  CALL_INCOM_VOICE_NOT_AUTH,
-  CALL_INCOM_DATA_AUTH,
-  CALL_INCOM_DATA_NOT_AUTH,
-  CALL_ACTIVE_DATA,
-  CALL_OTHERS,
-  CALL_NO_RESPONSE,
-  CALL_COMM_LINE_BUSY,
-
-  CALL_LAST_ITEM
-};
-
-
-enum getsms_ret_val_enum
-{
-  GETSMS_NO_SMS   = 0,
-  GETSMS_UNREAD_SMS,
-  GETSMS_READ_SMS,
-  GETSMS_OTHER_SMS,
-
-  GETSMS_NOT_AUTH_SMS,
-  GETSMS_AUTH_SMS,
-
-  GETSMS_LAST_ITEM
-};
-
 
 
 
@@ -218,23 +159,8 @@ class AT
     inline byte GetCommLineStatus(void) {return comm_line_status;};
     
     
-    // SMS's methods 
-    char InitSMSMemory(void);
-    char SendSMS(char *number_str, char *message_str);
-    char SendSMS(byte sim_phonebook_position, char *message_str);
-    char IsSMSPresent(byte required_status);
-    char GetSMS(byte position, char *phone_number, char *SMS_text, byte max_SMS_len);
-    char GetAuthorizedSMS(byte position, char *phone_number, char *SMS_text, byte max_SMS_len,
-                          byte first_authorized_pos, byte last_authorized_pos);
-    char DeleteSMS(byte position);
-
-    // Phonebook's methods
-    char GetPhoneNumber(byte position, char *phone_number);
-    char WritePhoneNumber(byte position, char *phone_number);
-    char ComparePhoneNumber(byte position, char *phone_number);
-
-
-    // routines regarding communication with the device
+    
+    // routines used for communication with the device
     void RxInit(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
                 byte flush_before_read, byte read_when_buffer_full);
     byte IsRxFinished(void);
