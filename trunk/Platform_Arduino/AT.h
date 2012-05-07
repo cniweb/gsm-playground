@@ -21,6 +21,9 @@
 #define __AT_h
 #include "Arduino.h"
 
+#include "Setting.h"
+
+
 /******************************* IMPORTANT ***********************************
 Keep in mind that DEBUG PRINT has only very limited functionality
 and can not be 100% guaranteed becuase all debug strings are sent also to the 
@@ -28,7 +31,7 @@ GSM module and thus can be interpreted as AT commands.
 *****************************************************************************/
 //#define DEBUG_PRINT
 
-#define AT_LIB_VERSION 101 // library version X.YY (e.g. 1.00) 100 means 1.00
+#define AT_LIB_VERSION 102 // library version X.YY (e.g. 1.00) 100 means 1.00
 /*
     Version
     -------------------------------------------------------------------------------
@@ -41,6 +44,9 @@ GSM module and thus can be interpreted as AT commands.
     -------------------------------------------------------------------------------
     101                    -AT class now covers only communication related stuff
                            -SMS and Call related stuff was moved to the GSM class
+    -------------------------------------------------------------------------------
+    102                    -methods for simple sending of string , string finished
+                            by <CR,LF> and int was added
     -------------------------------------------------------------------------------
     
 */
@@ -134,6 +140,7 @@ class AT
   public:
     uint16_t comm_buf_len;          // num. of characters in the buffer
     byte comm_buf[COMM_BUF_LEN+1];  // communication buffer +1 for 0x00 termination
+    long actual_baud_rate;
     
 
     // library version
@@ -161,6 +168,15 @@ class AT
     
     
     // routines used for communication with the device
+    void Write(byte send_as_binary); // binary format print
+    void Print(char const *string); // ascii format print
+    void Println(char const *string); // ascii format print
+    void Print(int value); // ascii format print
+    void Println(int value); // ascii format print
+    int  Read(void); // the same like read() in serial
+    void Flush(void); // the same like flush() in Serial
+    int  Available(void); // the same like available() in Serial
+
     void RxInit(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
                 byte flush_before_read, byte read_when_buffer_full);
     byte IsRxFinished(void);

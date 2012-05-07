@@ -89,10 +89,10 @@ void GSM::TurnOn(void)
 {
   SetCommLineStatus(CLS_ATCMD);
 
+
   while (AT_RESP_ERR_NO_RESP == SendATCmdWaitResp("AT", 500, 20, "OK", 5)) {
     // there is no response => turn on the module
-  
-    
+      
     // generate switch on pulse
     digitalWrite(GSM_ON, HIGH);
     delay(1200);
@@ -105,13 +105,19 @@ void GSM::TurnOn(void)
     DebugPrint("DEBUG: GSM module is off\r\n", 0);
 #endif
 
-    // and reset the module
+#ifndef GE836_GPS
+    // Be aware: reset pin on the new GE836-GPS module has different functionionlity:
+    // it does not mean reset(as for GE836 without GPS) but "Hardware Unconditional Shutdown"
+
+    // reset the module GE836 just for sure
+    // this is helpful mainly in situation when GSM Playground+Arduino board are reseted
+    // (and not switched-off and switched-on)during development
     digitalWrite(GSM_RESET, HIGH);
     delay(400);
     digitalWrite(GSM_RESET, LOW);
     delay(500);
-    
-    
+#endif
+   
 
     delay(3000); // wait before next try
   }
@@ -130,6 +136,7 @@ void GSM::TurnOn(void)
 **********************************************************/
 void GSM::InitParam(byte group)
 {
+  char string[20];
 
   switch (group) {
     case PARAM_SET_0:
@@ -142,9 +149,15 @@ void GSM::InitParam(byte group)
       // switch off echo
       SendATCmdWaitResp("ATE0", 500, 20, "OK", 5);
       // setup fixed baud rate
-      SendATCmdWaitResp("AT+IPR=115200", 500, 20, "OK", 5);
-      // setup mode
+      //      SendATCmdWaitResp("AT+IPR=115200", 500, 20, "OK", 5);
+      sprintf(string, "AT+IPR=%li", actual_baud_rate);
+      SendATCmdWaitResp(string, 500, 20, "OK", 5);
+      // setup communication mode
+#ifndef GE836_GPS
       SendATCmdWaitResp("AT#SELINT=1", 500, 20, "OK", 5);
+#else
+      SendATCmdWaitResp("AT#SELINT=2", 500, 20, "OK", 5);
+#endif
       // Switch ON User LED - just as signalization we are here
       SendATCmdWaitResp("AT#GPIO=8,1,1", 500, 20, "OK", 5);
       // Sets GPIO9 as an input = user button
@@ -290,7 +303,7 @@ byte GSM::CheckRegistration(void)
 
   if (CLS_FREE != GetCommLineStatus()) return (REG_COMM_LINE_BUSY);
   SetCommLineStatus(CLS_ATCMD);
-  Serial.println("AT+CREG?");
+  Println("AT+CREG?");
   // 5 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   status = WaitResp(5000, 20); 
@@ -1854,7 +1867,13 @@ int GSM::GetTemp(void)
   ret_val = -2000; // we do not have right value yet
 
   // response is in the format: #ADC: 885
-  if (AT_RESP_OK == SendATCmdWaitResp("AT#ADC=2,2,0", 500, 20, "#ADC", 1)) {
+#ifdef GE836_GPS
+  // ADC_IN1
+  if (AT_RESP_OK == SendATCmdWaitResp("AT#ADC=1,2,0", 2000, 20, "#ADC", 1)) {
+#else 
+  // ADC_IN2
+  if (AT_RESP_OK == SendATCmdWaitResp("AT#ADC=2,2,0", 2000, 20, "#ADC", 1)) {
+#endif
     // parse the received string
     pos = strchr((char *)comm_buf, ' ');
     if (pos != NULL) {

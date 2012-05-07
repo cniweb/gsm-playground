@@ -104,7 +104,7 @@ void loop()
 
         // in case you want to send SMS to the specific number
         // change 123456789 to your phone number
-         gsm.SendSMS("123456789", string); 
+        gsm.SendSMS("123456789", string); 
 
         // in case you want to send SMS to the specific SIM phonebook position
         // here we send to the first SIM phonebook position

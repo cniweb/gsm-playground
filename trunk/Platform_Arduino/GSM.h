@@ -41,18 +41,6 @@
 */
 
 
-// in case it is required to use DEBUG_PRINT sections in this module
-// please enable this constant in AT.h file
-
-
-// if defined - debug LED is enabled, otherwise debug LED is disabled
-//#define DEBUG_LED_ENABLED
-
-// if defined - SMSs are not send(are finished by the character 0x1b
-// which causes that SMS are not sent)
-// by this way it is possible to develop program without paying for SMSs 
-//#define DEBUG_SMS_ENABLED
-
 
 
 // length for the internal communication buffer
