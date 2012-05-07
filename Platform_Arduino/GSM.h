@@ -40,7 +40,7 @@
     --------------------------------------------------------------------------
     105       - All HW Serial communication methods were replaced with similar
                 communication methods defined in the AT module. 
-                This approach will give as and advantage in the future when
+                This approach will give us an advantage in the future when
                 communication with the GSM_GPS through HW serial line 
                 can be replaced with communication through SW serial line just 
                 by changing the communications methods in the AT module
