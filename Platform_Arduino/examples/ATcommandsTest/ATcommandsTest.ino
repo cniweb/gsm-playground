@@ -20,7 +20,7 @@
 #include "GSM.h"  
 
 #ifndef DEBUG_PRINT
-  #error "!!! It is necessary to enable DEBUG_PRINT macro in the AT.h !!!"
+  #error "!!! It is necessary to enable DEBUG_PRINT macro in the Setting.h !!!"
 #endif
 
 

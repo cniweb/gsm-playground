@@ -273,7 +273,7 @@ char GSM::OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
   strcat(cmd, itoa(local_port, tmp_str, 10));
 
   // send AT command and waits for the response "CONNECT" - max. 3 times
-  ret_val = SendATCmdWaitResp(cmd, 20000, 100, "CONNECT", 3);
+  ret_val = SendATCmdWaitResp(cmd, 20000, 200, "CONNECT", 3);
   if (ret_val == AT_RESP_OK) {
     ret_val = 1;
     SetCommLineStatus(CLS_DATA);

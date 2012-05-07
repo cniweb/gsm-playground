@@ -82,8 +82,8 @@ void loop()
       // not to loose any other incoming data !!!
       do {
         // 20000 means: we will wait max. 20 sec. for first incomming character
-        // 1000 means: receiving is finished if there is no other incomming character longer then 1sec.
-        num_of_rx_bytes = gsm.RcvData(20000, 1000, &ptr_to_data);
+        // 2000 means: receiving is finished if there is no other incomming character longer then 2sec.
+        num_of_rx_bytes = gsm.RcvData(20000, 2000, &ptr_to_data);
         if (num_of_rx_bytes) {
           // we have received some data
           // we can analyze the data here etc.
@@ -102,6 +102,9 @@ void loop()
 
       // now close the socket for a moment 
       gsm.CloseSocket();
+
+      // wait some time
+      delay(2000);
 
       // and now we can try standard AT command - e.g. try to check registration
       // or we can check new SMS etc.

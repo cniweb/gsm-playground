@@ -74,15 +74,15 @@ last_debug_print: 0 - this is not last debug info, we will
 void AT::DebugPrint(const char *string_to_print, byte last_debug_print)
 {
   if (last_debug_print) {
-    Serial.println(string_to_print);
+    Println(string_to_print);
     SendATCmdWaitResp("AT", START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
   }
-  else Serial.print(string_to_print);
+  else Print(string_to_print);
 }
 
 void AT::DebugPrint(int number_to_print, byte last_debug_print)
 {
-  Serial.println(number_to_print);
+  Println(number_to_print);
   if (last_debug_print) {
     SendATCmdWaitResp("AT", START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
   }
@@ -103,6 +103,8 @@ int AT::LibVer(void)
 
 AT::AT(void)
 {
+  //default
+  actual_baud_rate = 115200;
 }
 
 /**********************************************************
@@ -112,11 +114,60 @@ void AT::InitSerLine(long baud_rate)
 {
   // open the serial line for the communication
   Serial.begin(baud_rate);
+  actual_baud_rate = baud_rate;
   // communication line is not used yet = free
   SetCommLineStatus(CLS_FREE);
   // pointer is initialized to the first item of comm. buffer
   p_comm_buf = &comm_buf[0];
 }
+
+
+/**********************************************************
+  Methods for sending and receiving characters through
+  HW Serial port but can be redefined for using of SW serial
+  port in the GPS module if necessary
+**********************************************************/
+void AT::Write(byte send_as_binary)
+{
+  Serial.write(send_as_binary);
+}
+
+void AT::Print(char const *string)
+{
+  Serial.print(string);
+}
+
+void AT::Println(char const *string)
+{
+  Serial.println(string);
+}
+
+void AT::Print(int int_value)
+{
+  Serial.print(int_value);
+}
+
+void AT::Println(int int_value)
+{
+  Serial.println(int_value);
+}
+
+int  AT::Read(void)
+{
+  return (Serial.read());
+}
+
+void AT::Flush(void)
+{
+  Serial.flush();
+}
+
+int  AT::Available(void)
+{
+  return (Serial.available());
+}
+
+
 
 /**********************************************************
   Initializes receiving process
@@ -149,7 +200,7 @@ void AT::RxInit(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
   p_comm_buf = &comm_buf[0];
   comm_buf_len = 0;
   if (flush_before_read) {
-    Serial.flush(); // erase rx circular buffer
+    Flush(); // erase rx circular buffer
   }
   flag_read_when_buffer_full = read_when_buffer_full; 
 }
@@ -173,7 +224,7 @@ byte AT::IsRxFinished(void)
 
   if (rx_state == RX_NOT_STARTED) {
     // Reception is not started yet - check tmout
-    if (!Serial.available()) {
+    if (!Available()) {
       // still no character received => check timeout
       if ((unsigned long)(millis() - prev_time) >= start_reception_tmout) {
         // timeout elapsed => GSM module didn't start with response
@@ -194,7 +245,7 @@ byte AT::IsRxFinished(void)
     // Reception already started
     // check new received bytes
     // only in case we have place in the buffer
-    num_of_bytes = Serial.available();
+    num_of_bytes = Available();
     // if there are some received bytes postpone the timeout
     if (num_of_bytes) prev_time = millis();
       
@@ -205,7 +256,7 @@ byte AT::IsRxFinished(void)
         // we have still place in the GSM internal comm. buffer =>
         // move available bytes from circular buffer 
         // to the rx buffer
-        *p_comm_buf = Serial.read();
+        *p_comm_buf = Read();
         p_comm_buf++;
         comm_buf_len++;
         comm_buf[comm_buf_len] = 0x00;  // and finish currently received characters
@@ -222,7 +273,7 @@ byte AT::IsRxFinished(void)
         // so just readout character from circular RS232 buffer 
         // to find out when communication id finished(no more characters
         // are received in inter-char timeout)
-        Serial.read();
+        Read();
       }
       else {
         // buffer is full and we are in the data state => finish 
@@ -361,7 +412,7 @@ char AT::SendATCmdWaitResp(char const *AT_cmd_string,
     // so if we have no_of_attempts=1 tmout will not occurred
     if (i > 0) delay(AT_DELAY); 
 
-    Serial.println(AT_cmd_string);
+    Println(AT_cmd_string);
     status = WaitResp(start_comm_tmout, max_interchar_tmout); 
     if (status == RX_FINISHED) {
       // something was received but what was received?
