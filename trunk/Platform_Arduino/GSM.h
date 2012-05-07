@@ -23,7 +23,7 @@
 
 #include "Arduino.h"
 
-#define GSM_LIB_VERSION 104 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 105 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
@@ -37,6 +37,13 @@
     --------------------------------------------------------------------------
     104       - SMS stuff and Call stuff added from the AT.h class
                 to clean up AT.h
+    --------------------------------------------------------------------------
+    105       - All HW Serial communication methods were replaced with similar
+                communication methods defined in the AT module. 
+                This approach will give as and advantage in the future when
+                communication with the GSM_GPS through HW serial line 
+                can be replaced with communication through SW serial line just 
+                by changing the communications methods in the AT module
     --------------------------------------------------------------------------
 */
 

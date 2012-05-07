@@ -306,7 +306,7 @@ byte GSM::CheckRegistration(void)
   Println("AT+CREG?");
   // 5 sec. for initial comm tmout
   // 20 msec. for inter character timeout
-  status = WaitResp(5000, 20); 
+  status = WaitResp(5000, MAX_MID_INTERCHAR_TMOUT); 
 
   if (status == RX_FINISHED) {
     // something was received but what was received?
@@ -384,22 +384,22 @@ char GSM::SendSMS(char *number_str, char *message_str)
   // try to send SMS 3 times in case there is some problem
   for (i = 0; i < 3; i++) {
     // send  AT+CMGS="number_str"
-    Serial.print("AT+CMGS=\"");
-    Serial.print(number_str);  
-    Serial.print("\"\r");
+    Print("AT+CMGS=\"");
+    Print(number_str);  
+    Print("\"\r");
 
     // 1000 msec. for initial comm tmout
     // 20 msec. for inter character timeout
     if (RX_FINISHED_STR_RECV == WaitResp(START_LONG_COMM_TMOUT, MAX_INTERCHAR_TMOUT, ">")) {
       // send SMS text
-      Serial.print(message_str); 
+      Print(message_str); 
 
 #ifdef DEBUG_SMS_ENABLED
       // SMS will not be sent = we will not pay => good for debugging
-      Serial.write(0x1b);
+      Write(0x1b);
       if (RX_FINISHED_STR_RECV == WaitResp(START_XXLONG_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK")) {
 #else 
-      Serial.write(0x1a);
+      Write(0x1a);
       if (RX_FINISHED_STR_RECV == WaitResp(START_XXLONG_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "+CMGS")) {
 #endif
         // SMS was send correctly 
@@ -553,13 +553,13 @@ char GSM::IsSMSPresent(byte required_status)
 
   switch (required_status) {
     case SMS_UNREAD:
-      Serial.print("AT+CMGL=\"REC UNREAD\"\r");
+      Print("AT+CMGL=\"REC UNREAD\"\r");
       break;
     case SMS_READ:
-      Serial.print("AT+CMGL=\"REC READ\"\r");
+      Print("AT+CMGL=\"REC READ\"\r");
       break;
     case SMS_ALL:
-      Serial.print("AT+CMGL=\"ALL\"\r");
+      Print("AT+CMGL=\"ALL\"\r");
       break;
   }
 
@@ -678,9 +678,9 @@ char GSM::GetSMS(byte position, char *phone_number, char *SMS_text, byte max_SMS
   ret_val = GETSMS_NO_SMS; // still no SMS
   
   //send "AT+CMGR=X" - where X = position
-  Serial.print("AT+CMGR=");
-  Serial.print((int)position);  
-  Serial.print("\r");
+  Print("AT+CMGR=");
+  Print((int)position);  
+  Print("\r");
 
   // 5000 msec. for initial comm tmout
   // 100 msec. for inter character tmout
@@ -932,9 +932,9 @@ char GSM::DeleteSMS(byte position)
   ret_val = 0; // not deleted yet
   
   //send "AT+CMGD=XY" - where XY = position
-  Serial.print("AT+CMGD=");
-  Serial.print((int)position);  
-  Serial.print("\r");
+  Print("AT+CMGD=");
+  Print((int)position);  
+  Print("\r");
 
 
   // 5000 msec. for initial comm tmout
@@ -1015,9 +1015,9 @@ char GSM::GetPhoneNumber(byte position, char *phone_number)
   phone_number[0] = 0; // phone number not found yet => empty string
   
   //send "AT+CPBR=XY" - where XY = position
-  Serial.print("AT+CPBR=");
-  Serial.print((int)position);  
-  Serial.print("\r");
+  Print("AT+CPBR=");
+  Print((int)position);  
+  Print("\r");
 
   // 5000 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1089,11 +1089,11 @@ char GSM::WritePhoneNumber(byte position, char *phone_number)
   //send: AT+CPBW=XY,"00420123456789"
   // where XY = position,
   //       "00420123456789" = phone number string
-  Serial.print("AT+CPBW=");
-  Serial.print((int)position);  
-  Serial.print(",\"");
-  Serial.print(phone_number);
-  Serial.print("\"\r");
+  Print("AT+CPBW=");
+  Print((int)position);  
+  Print(",\"");
+  Print(phone_number);
+  Print("\"\r");
 
   // 5000 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1198,7 +1198,7 @@ byte GSM::CallStatus(void)
 
   if (CLS_FREE != GetCommLineStatus()) return (CALL_COMM_LINE_BUSY);
   SetCommLineStatus(CLS_ATCMD);
-  Serial.println("AT+CPAS");
+  Println("AT+CPAS");
 
   // 5 sec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1283,7 +1283,7 @@ byte GSM::CallStatusWithAuth(char *phone_number,
   phone_number[0] = 0x00;  // no phonr number so far
   if (CLS_FREE != GetCommLineStatus()) return (CALL_COMM_LINE_BUSY);
   SetCommLineStatus(CLS_ATCMD);
-  Serial.println("AT+CLCC");
+  Println("AT+CLCC");
 
   // 5 sec. for initial comm tmout
   // and max. 1500 msec. for inter character timeout
@@ -1416,7 +1416,7 @@ void GSM::PickUp(void)
 {
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
-  Serial.println("ATA");
+  Println("ATA");
   SetCommLineStatus(CLS_FREE);
 }
 
@@ -1429,7 +1429,7 @@ void GSM::HangUp(void)
 {
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
-  Serial.println("ATH");
+  Println("ATH");
   SetCommLineStatus(CLS_FREE);
 }
 
@@ -1445,9 +1445,9 @@ void GSM::Call(char *number_string)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   // ATDxxxxxx;<CR>
-  Serial.print("ATD");
-  Serial.print(number_string);    
-  Serial.print(";\r");
+  Print("ATD");
+  Print(number_string);    
+  Print(";\r");
   // 10 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   WaitResp(10000, 20);
@@ -1465,9 +1465,9 @@ void GSM::Call(int sim_position)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   // ATD>"SM" 1;<CR>
-  Serial.print("ATD>\"SM\" ");
-  Serial.print(sim_position);    
-  Serial.print(";\r");
+  Print("ATD>\"SM\" ");
+  Print(sim_position);    
+  Print(";\r");
 
   // 10 sec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1503,9 +1503,9 @@ char GSM::SetSpeakerVolume(byte speaker_volume)
   if (speaker_volume > 14) speaker_volume = 14;
   // select speaker volume (0 to 14)
   // AT+CLVL=X<CR>   X<0..14>
-  Serial.print("AT+CLVL=");
-  Serial.print((int)speaker_volume);    
-  Serial.print("\r"); // send <CR>
+  Print("AT+CLVL=");
+  Print((int)speaker_volume);    
+  Print("\r"); // send <CR>
   // 10 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   if (RX_TMOUT_ERR == WaitResp(10000, 20)) {
@@ -1605,9 +1605,9 @@ char GSM::SendDTMFSignal(byte dtmf_tone)
   if (CLS_FREE != GetCommLineStatus()) return (ret_val);
   SetCommLineStatus(CLS_ATCMD);
   // e.g. AT+VTS=5<CR>
-  Serial.print("AT+VTS=");
-  Serial.print((int)dtmf_tone);    
-  Serial.print("\r");
+  Print("AT+VTS=");
+  Print((int)dtmf_tone);    
+  Print("\r");
   // 1 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   if (RX_TMOUT_ERR == WaitResp(1000, 20)) {
@@ -1637,7 +1637,7 @@ byte GSM::IsUserButtonPushed(void)
   byte ret_val = 0;
   if (CLS_FREE != GetCommLineStatus()) return(0);
   SetCommLineStatus(CLS_ATCMD);
-  if (AT_RESP_OK == SendATCmdWaitResp("AT#GPIO=9,2", 500, 20, "#GPIO: 0,0", 1)) {
+  if (AT_RESP_OK == SendATCmdWaitResp("AT#GPIO=9,2", 2000, MAX_MID_INTERCHAR_TMOUT, "#GPIO: 0,0", 1)) {
     // user button is pushed
     ret_val = 1;
   }
@@ -1700,14 +1700,14 @@ char GSM::SetGPIODir(byte GPIO_pin, byte direction)
 
   // e.g. AT#GPIO=9,0,0 - sets as INPUT
   // e.g. AT#GPIO=9,0,1 - sets as OUTPUT and value is "0" - LOW
-  Serial.print("AT#GPIO=");
+  Print("AT#GPIO=");
   // pin number
-  Serial.print((int)GPIO_pin);  
-  Serial.print(",0,"); // if case pin will be OUTPUT - 
+  Print((int)GPIO_pin);  
+  Print(",0,"); // if case pin will be OUTPUT - 
                        // first value after initialization will be 0 
   if (direction > 1) direction = 1;
-  Serial.print((int)direction); // 0-INPUT, 1-OUTPUT
-  Serial.print("\r");           // finish command = send<CR>
+  Print((int)direction); // 0-INPUT, 1-OUTPUT
+  Print("\r");           // finish command = send<CR>
 
   // 100 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1757,13 +1757,13 @@ char GSM::SetGPIOVal(byte GPIO_pin, byte value)
 
   // e.g. AT#GPIO=9,0,1 - set to "0" - LOW
   // or   AT#GPIO=9,1,1 - set to "1" - HIGH
-  Serial.print("AT#GPIO=");
+  Print("AT#GPIO=");
   // pin number
-  Serial.print((int)GPIO_pin);  
-  Serial.print(",");
+  Print((int)GPIO_pin);  
+  Print(",");
   if (value > 1) value = 1;
-  Serial.print((int)value);
-  Serial.print(",1\r");  // pin is always set as output
+  Print((int)value);
+  Print(",1\r");  // pin is always set as output
 
   // 100 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1810,10 +1810,10 @@ char GSM::GetGPIOVal(byte GPIO_pin)
 
 
   //e.g. AT#GPIO=9,2
-  Serial.print("AT#GPIO=");
+  Print("AT#GPIO=");
   // pin number
-  Serial.print((int)GPIO_pin);  
-  Serial.print(",2\r");
+  Print((int)GPIO_pin);  
+  Print(",2\r");
 
   // 100 msec. for initial comm tmout
   // 20 msec. for inter character timeout

@@ -24,14 +24,8 @@
 #include "Setting.h"
 
 
-/******************************* IMPORTANT ***********************************
-Keep in mind that DEBUG PRINT has only very limited functionality
-and can not be 100% guaranteed becuase all debug strings are sent also to the 
-GSM module and thus can be interpreted as AT commands.
-*****************************************************************************/
-//#define DEBUG_PRINT
 
-#define AT_LIB_VERSION 102 // library version X.YY (e.g. 1.00) 100 means 1.00
+#define AT_LIB_VERSION 103 // library version X.YY (e.g. 1.00) 100 means 1.00
 /*
     Version
     -------------------------------------------------------------------------------
@@ -47,6 +41,13 @@ GSM module and thus can be interpreted as AT commands.
     -------------------------------------------------------------------------------
     102                    -methods for simple sending of string , string finished
                             by <CR,LF> and int was added
+    -------------------------------------------------------------------------------
+    103                    -another communication methods were added:
+                           Read()
+                           Flush()
+                           Available()
+                           These methods have the same behavior like the methods from Serial
+                           module
     -------------------------------------------------------------------------------
     
 */
@@ -169,11 +170,12 @@ class AT
     
     // routines used for communication with the device
     void Write(byte send_as_binary); // binary format print
+    void Write(byte* data_buffer, unsigned short size); // binary format print
     void Print(char const *string); // ascii format print
     void Println(char const *string); // ascii format print
     void Print(int value); // ascii format print
     void Println(int value); // ascii format print
-    int  Read(void); // the same like read() in serial
+    int  Read(void); // the same like read() in Serial
     void Flush(void); // the same like flush() in Serial
     int  Available(void); // the same like available() in Serial
 
