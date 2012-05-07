@@ -46,7 +46,7 @@
                            Read()
                            Flush()
                            Available()
-                           These methods have the same behavior like the methods from Serial
+                           These methods have the same behaviour like the methods from Serial
                            module
     -------------------------------------------------------------------------------
     
