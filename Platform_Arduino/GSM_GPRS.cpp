@@ -310,12 +310,12 @@ an example of usage:
 **********************************************************/
 void GSM::SendData(char* str_data)
 {
-  Serial.print(str_data);
+  Print(str_data);
 }
 
 void GSM::SendData(byte* data_buffer, unsigned short size)
 {
-  Serial.write(data_buffer, size);
+  Write(data_buffer, size);
 }
 
 /**********************************************************
