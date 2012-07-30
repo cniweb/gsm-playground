@@ -132,7 +132,7 @@ void AT::Write(byte send_as_binary)
   Serial.write(send_as_binary);
 }
 
-void Write(byte* data_buffer, unsigned short size)
+void AT::Write(byte* data_buffer, unsigned short size)
 {
   Serial.write(data_buffer, size);
 }

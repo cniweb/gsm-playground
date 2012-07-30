@@ -24,8 +24,13 @@
 #endif
 
 
-// definition of instance of GSM class
-GSM gsm;
+// ---------------------------------------------------------------------------
+// Important:
+// ========== 
+// instance of GSM class("GSM gsm;") is already defined in the GSM.cpp module
+// so we cannot define this instance here
+// see explanation in the GSM.cpp module
+// ---------------------------------------------------------------------------
 
 // return variable
 signed char ret_val;

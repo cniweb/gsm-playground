@@ -24,6 +24,17 @@ extern "C" {
   #include <string.h>
 }
 
+// -----------------------------------------------------------------
+// IMPORTANT:
+// definition of GSM instance is placed here
+// to enable implementation of GPS functionality as a standard class
+// so the users who use the OLD GSM module without GPS functionality
+// will still have GSM module without GPS methods
+// -----------------------------------------------------------------
+GSM gsm;
+
+
+
 
 /**********************************************************
 Method returns GSM library version

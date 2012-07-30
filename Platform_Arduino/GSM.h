@@ -23,7 +23,7 @@
 
 #include "Arduino.h"
 
-#define GSM_LIB_VERSION 105 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 106 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
@@ -44,6 +44,8 @@
                 communication with the GSM_GPS through HW serial line 
                 can be replaced with communication through SW serial line just 
                 by changing the communications methods in the AT module
+    --------------------------------------------------------------------------
+    106       - instance of GSM class is defined directly in the GSM.cpp module
     --------------------------------------------------------------------------
 */
 
@@ -154,11 +156,6 @@ enum call_ret_val_enum
 
   CALL_LAST_ITEM
 };
-
-
-
-
-
 
 
 class GSM : public AT
@@ -277,7 +274,6 @@ class GSM : public AT
 
 
 
-
   private:
     //=================================================================
     // Private section for general GSM
@@ -286,6 +282,9 @@ class GSM : public AT
     byte module_status;
     // last value of speaker volume
     byte last_speaker_volume; 
-
 };
+
+
+extern GSM gsm;
+
 #endif
