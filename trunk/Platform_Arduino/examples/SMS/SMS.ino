@@ -24,7 +24,6 @@
   SIM card please backup them up before inserting SIM card
   to the GSM Playground
 */
-
 #include "GSM.h"  
 
 // max length for SMS buffer(including also string terminator 0x00)
@@ -32,8 +31,14 @@
 // string termination 0x00)
 #define SMS_MAX_LEN 100
 
-// definition of instance of GSM class
-GSM gsm;
+// ---------------------------------------------------------------------------
+// Important:
+// ========== 
+// instance of GSM class("GSM gsm;") is already defined in the GSM.cpp module
+// so we cannot define this instance here
+// see explanation in the GSM.cpp module
+// ---------------------------------------------------------------------------
+
 
 // variables used for timing
 unsigned long	previous_timer;

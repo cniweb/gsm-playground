@@ -17,8 +17,13 @@
 #include "GSM.h"  
 
 
-// definition of instance of GSM class
-GSM gsm;
+// ---------------------------------------------------------------------------
+// Important:
+// ========== 
+// instance of GSM class("GSM gsm;") is already defined in the GSM.cpp module
+// so we cannot define this instance here
+// see explanation in the GSM.cpp module
+// ---------------------------------------------------------------------------
 
 // variables used for timing
 unsigned long	previous_timer;
