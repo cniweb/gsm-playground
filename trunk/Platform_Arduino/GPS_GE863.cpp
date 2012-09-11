@@ -17,7 +17,7 @@
 */  
 
 //#include "Debug.h"
-//#include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #include "GPS_GE863.h"
 
 
@@ -26,17 +26,19 @@ extern "C" {
   #include <string.h>
 }
 
-/*
+
+#include "SoftwareSerial.h"
 #define rxPin A4
 #define txPin A5
 SoftwareSerial debugserial(rxPin, txPin);
-*/
+
 
 /**********************************************************
 Constructor
 **********************************************************/
 GPS_GE863::GPS_GE863(void)
 {
+debugserial.begin(57600);
 }
 
 /**********************************************************
@@ -76,7 +78,7 @@ char GPS_GE863::ResetGPSModul(byte reset_type)
   char cmd[15];
 
 //debugserial.begin(57600);
-//debugserial.println("TEMP");
+debugserial.println("Debug: GPS_GE863.cpp");
 
   if (CLS_FREE != gsm.GetCommLineStatus()) return (ret_val);
   gsm.SetCommLineStatus(CLS_ATCMD);
@@ -139,7 +141,6 @@ char GPS_GE863::GetGPSSwVers(char *sw_ver_string)
   char ret_val = -1;
   char *p_resp;
   char *p_buf = (char*)&gsm.comm_buf[0];
-
 
   if (CLS_FREE != gsm.GetCommLineStatus()) return (ret_val);
   gsm.SetCommLineStatus(CLS_ATCMD);
@@ -369,19 +370,24 @@ char GPS_GE863::GetGPSAntennaCurrent(unsigned short *redout_current)
 }
 
 /**********************************************************
-Method returns GPS coordinates, time and date
+Method returns:
+ 1) actual GPS coordinates in raw values(must be converter latter)
+ 2) actual time
+ 3) actual date
 
 position: pointer to the redout GPS position
+time:     pointer to the redout GPS time
+date:     pointer to the redout GPS date 
 
 return: 
         ERROR ret. val:
         ---------------
         -1  - comm. line is not free
-        0   - GPS coordinates are not OK
+        0   - GPS coordinates are not OK(not valid yet)
 
         OK ret val:
         -----------
-        1 - GPS coordinates are OK
+        1 - GPS coordinates are valid
 
 
 an example of usage:
@@ -396,15 +402,20 @@ char GPS_GE863::GetGPSData(Position *position, Time *time, Date *date)
   char ret_val = -1;
   char cmd[15];
 
+debugserial.println("GPS_GE863::GetGPSData();");
+
   if (CLS_FREE != gsm.GetCommLineStatus()) return (ret_val);
   gsm.SetCommLineStatus(CLS_ATCMD);
 
   ret_val = gsm.SendATCmdWaitResp("AT$GPSACP", 5000, 100, "", 1);
-  if (ret_val == AT_RESP_ERR_DIF_RESP) {
+debugserial.print("  -->ret_val: ");
+debugserial.println(ret_val, DEC);
+  if (ret_val == AT_RESP_OK) {
     // there is some response
     // ----------------------
+debugserial.println("  -->ParseGPS();");
     actual_position.fix = 0;
-    ParseGPS((char *)gsm.comm_buf, &actual_position, &actual_time, &actual_date);
+    ParseGPS((char *)&gsm.comm_buf[0], &actual_position, &actual_time, &actual_date);
     if (actual_position.fix > 0) {
       // coordinates were read correctly
       // -------------------------------
@@ -431,11 +442,18 @@ char GPS_GE863::GetGPSData(Position *position, Time *time, Date *date)
 }
 
 
-/*
- * Parse the given string into a position record.
- * example:
- * $GPSACP: 120631.999,5433.9472N,00954.8768E,1.0,46.5,3,167.28,0.36,0.19,130707,11\r
- */
+/**********************************************************
+Method parse the given "GPS" string into a position, time and date record
+
+input:
+ gpsMsg: pointer to "GPS" string like $GPSACP: 120631.999,5433.9472N,00954.8768E,1.0,46.5,3,167.28,0.36,0.19,130707,11\r
+
+
+return: 
+        pos:  pointer to position structure where position is extracted from gpsMsg string
+        time: pointer to time structure where time is extracted from gpsMsg string
+        date: pointer to date structure where date is extracted from gpsMsg string
+ **********************************************************/
 void GPS_GE863::ParseGPS(char *gpsMsg, Position *pos, Time *time, Date *date) {
 
   char time_str[7];
@@ -447,7 +465,10 @@ void GPS_GE863::ParseGPS(char *gpsMsg, Position *pos, Time *time, Date *date) {
   char nr_sat[4];
 
 	//$GPSACP: 120631.999,5433.9472N,00954.8768E,1.0,46.5,3,167.28,0.36,0.19,130707,11\r
-  
+debugserial.println("GPS_GE863::ParseGPS();");  
+debugserial.print("  -->gpsMsg: ");
+debugserial.println(gpsMsg);
+
   gpsMsg = gsm.Skip(gpsMsg, ':');                // Skip prolog
   gpsMsg = gsm.ReadToken(gpsMsg, time_str, '.');     // time, hhmmss
   gpsMsg = gsm.Skip(gpsMsg, ',');                // Skip ms
@@ -463,11 +484,29 @@ void GPS_GE863::ParseGPS(char *gpsMsg, Position *pos, Time *time, Date *date) {
   gpsMsg = gsm.ReadToken(gpsMsg, date_str, ',');     // date ddmmyy
   gpsMsg = gsm.ReadToken(gpsMsg, nr_sat, '\n');  // number of sats
 
+
+debugserial.print("  -->time_str: ");
+debugserial.println(time_str);
+debugserial.print("  -->lat_buf: ");
+debugserial.println(lat_buf);
+debugserial.print("  -->lon_buf: ");
+debugserial.println(lon_buf);
+debugserial.print("  -->date_str: ");
+debugserial.println(date_str);
+
+
+
+
   if (fix != '0') {
-    ParseDateTime(time, date, time_str, date_str);
-    ParsePosition(pos, lat_buf, lon_buf, alt_buf);
-    pos->fix = fix;
+    ParseDateTime(time_str, date_str, time, date);
+    ParsePosition(lat_buf, lon_buf, alt_buf, pos);
+    pos->fix = fix - '0';
   }
+  else {
+    pos->fix = 0;
+  }
+debugserial.print("  -->fix: ");
+debugserial.println(pos->fix, DEC);
 
 }
 
@@ -476,7 +515,7 @@ void GPS_GE863::ParseGPS(char *gpsMsg, Position *pos, Time *time, Date *date) {
 /*
  * Parse and convert the position tokens. 
  */
-void GPS_GE863::ParseDateTime(Time *time, Date *date, char *time_str, char *date_str) {
+void GPS_GE863::ParseDateTime(char *time_str, char *date_str, Time *time, Date *date) {
   char buf[3];
 
   // time string "hhmmss"
@@ -513,45 +552,222 @@ void GPS_GE863::ParseDateTime(Time *time, Date *date, char *time_str, char *date
 /*
  * Parse and convert the position tokens. 
  */
-void GPS_GE863::ParsePosition(Position *pos, char *lat_str, char *lon_str, char *alt_str) {
+void GPS_GE863::ParsePosition(char *lat_str, char *lon_str, char *alt_str, Position *pos) {
   char buf[10];
-  ParseDegrees(lat_str, &pos->lat_deg, &pos->lat_min);
-  ParseDegrees(lon_str, &pos->lon_deg, &pos->lon_min);
+
+  ParseRawPosition(lat_str, &pos->latitude_raw, &pos->latitude_dir);
+  ParseRawPosition(lon_str, &pos->longitude_raw, &pos->longitude_dir);
   gsm.ReadToken(alt_str, buf, '.');
-  pos->alt = atol(buf);
+  pos->altitude = atol(buf);
+}
+
+
+
+
+/*
+ * Parse and convert the given string into raw position.
+ * Example: 5333.9472N
+ * converted to: 53339472
+  */
+void GPS_GE863::ParseRawPosition(
+char *pos_str,  // latitute/longitude string in formats
+                // latitude:   "ddmm.mmmmX"   where dd - degrees(00.90), 
+                //                                  mm.mmmm - minutes(00.0000..59.9999)
+                //                                  X = N or S
+                //              
+                // longitude: "dddmm.mmmmX"   where ddd - degrees(000..180), 
+                //                                  mm.mmmm - minutes(00.0000..59.9999)
+                //                                  X = E or W                                  
+
+unsigned long *raw_position,  // "raw" mean that latitude or longitude string is just convert to long variable 1 to 1
+                              // it means that e.g. "5333.9472N" is convert to long variable: 53339472
+char *direction_char          // for latitude:  "N" or "S"
+                              // for longitude: "E" or "W"
+) 
+{
+  char *parseptr;
+  unsigned long local_raw_pos;
+
+  parseptr = pos_str;
+  local_raw_pos = atol(parseptr);
+  if (local_raw_pos != 0) {
+    local_raw_pos *= 10000;
+    parseptr = strchr(parseptr, '.')+1;
+    local_raw_pos += atol(parseptr);
+  }
+  *raw_position = local_raw_pos;
+
+  // read latitude N/S or longitude E/W data
+  *direction_char = parseptr[4]; 
 }
 
 
 /*
- * Parse and convert the given string into degrees and minutes.
- * Example: 5333.9472N --> 53 degrees, 33.9472 minutes
- * converted to: 53.565786 degrees 
+ * Gets specified position part in a specified format 
+ *
+ * Generally there are 3 types of representation of GPS data which are frequently used
+   (D=degree, M=minute, S=second):
+
+    1) DD°MM´SS.SS½ - supported now
+                      
+    2) DD°MM.MMM´ - not supported yet
+
+    3) DD.DDDDD° - not supported yet
  */
-void GPS_GE863::ParseDegrees(char *str, int *degree, long *minutes) {
-  char buf[6];
-  byte c = 0;
-  byte i = 0;
-  char *tmp_str;
-	
-  tmp_str = str;
-  while ((c = *tmp_str++) != '.') i++;
-  strlcpy(buf, str, i-1);
-  *degree = atoi(buf);
-  tmp_str -= 3;
-  i = 0;
-  while (true) {
-    c = *tmp_str++;
-    if ((c == '\0') || (i == 5)) {
-      break;
-    }
-    else if (c != '.') {
-      buf[i++] = c;
+
+
+long GPS_GE863::GetPositionPart(
+Position *position,     // position structure 
+char part,              //  for latitude data use symbolic name PART_LATITUDE
+                        //      longitude use symbolic name     PART_LONGITUDE
+char format             // format: use symbolic constant
+                        //#define FORMAT_DEG            0 // degree
+                        //#define FORMAT_MIN            1 // minute
+                        //#define FORMAT_SEC            2 // seconds
+                        //#define FORMAT_0POINT01_SEC   3 // hundredth of seconds
+                                // it means result:  1 = 0.01 sec.
+                                //                  10 = 0.10 sec.    
+)
+{
+  long ret_val;
+
+  if (part == PART_LATITUDE) {
+    switch (format) {
+      case FORMAT_DEG:
+        ret_val = position->latitude_raw / 1000000;
+        break;
+      case FORMAT_MIN:
+        ret_val = (position->latitude_raw / 10000) % 100;
+        break;
+      case FORMAT_SEC:
+        ret_val = (position->latitude_raw % 10000) * 6 / 1000;
+        break;
+      case FORMAT_0POINT01_SEC:
+        ret_val = ((position->latitude_raw % 10000) * 6 / 10) % 100;
+        break;
+      default:
+        ret_val = -1; // not valid
+        break;
     }
   }
-  buf[i] = 0;
-  *minutes = atol(buf);
-  *minutes *= 16667;
-  *minutes /= 1000;
+  else if (part == PART_LONGITUDE) {
+    switch (format) {
+      case FORMAT_DEG:
+        ret_val = position->longitude_raw / 1000000;
+        break;
+      case FORMAT_MIN:
+        ret_val = (position->longitude_raw / 10000) % 100;
+        break;
+      case FORMAT_SEC:
+        ret_val = (position->longitude_raw % 10000) * 6 / 1000;
+        break;
+      case FORMAT_0POINT01_SEC:
+        ret_val = ((position->longitude_raw % 10000) * 6 / 10) % 100;
+        break;
+      default:
+        ret_val = -1; // not valid
+        break;
+    }
+  }
+
+  return(ret_val);
 }
 
+/*
+ * Converts position part(latitude or longitude) into specified string
+ *
+ * Generally there are 3 types of representation of GPS data which are frequently used
+   (D=degree, M=minute, S=second):
 
+  format: use symbolic names: 
+    GPS_POS_FORMAT_1          => format DD°MM´SS.SS½ - supported now
+                      
+    GPS_POS_FORMAT_2          => format DD°MM.MMM´ - not supported yet
+
+    GPS_POS_FORMAT_3          => format DD.DDDDD° - not supported yet
+ */
+
+
+void GPS_GE863::ConvertPosition2String(
+Position *position,     // position structure 
+char part,              //  for latitude use symbolic name  PART_LATITUDE
+                        //  for longitude use symbolic name PART_LONGITUDE
+char format,            // format: use symbolic constant
+                        //#define GPS_POS_FORMAT_1  1 // format DD°MM´SS.SS½
+char *out_pos_string    // pointer to created string
+)
+{
+  unsigned char pos;
+
+  switch (part) {
+    case PART_LATITUDE:
+      switch (format) {
+        case GPS_POS_FORMAT_1:
+          if (out_pos_string != NULL) {
+            if (position->fix == 0) {
+              sprintf(out_pos_string, "%s", "GPS data not valid"); 
+            }
+            else {
+              /*
+              //this doe not work on Arduino: there is probably a lot of arguments
+              //so next solution is used instead
+              sprintf(out_pos_string, "%d°%d'%d.%d\" %c", 
+                                     GetPositionPart(position, PART_LATITUDE, FORMAT_DEG),
+                                     GetPositionPart(position, PART_LATITUDE, FORMAT_MIN),
+                                     GetPositionPart(position, PART_LATITUDE, FORMAT_SEC),
+                                     GetPositionPart(position, PART_LATITUDE, FORMAT_0POINT01_SEC),
+                                     position->latitude_dir);
+              */
+              pos = 0;
+              pos = sprintf(out_pos_string, "%d°", GetPositionPart(position, PART_LATITUDE, FORMAT_DEG));
+              pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LATITUDE, FORMAT_MIN));
+              pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LATITUDE, FORMAT_SEC));
+              pos += sprintf(out_pos_string+pos, "%02d\" ", GetPositionPart(position, PART_LATITUDE, FORMAT_0POINT01_SEC));
+              sprintf(out_pos_string+pos, "%c", position->latitude_dir);
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+      break;
+    
+    case PART_LONGITUDE:
+      switch (format) {
+        case GPS_POS_FORMAT_1:
+          if (out_pos_string != NULL) {
+            if (position->fix == 0) {
+              sprintf(out_pos_string, "%s", "GPS data not valid"); 
+            }
+            else {
+              /*
+              //this doe not work on Arduino: there is probably a lot of arguments
+              //so next solution is used instead
+              sprintf(out_pos_string, "%d°%d'%d.%d\" %c", 
+                                     GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG),
+                                     GetPositionPart(position, PART_LONGITUDE, FORMAT_MIN),
+                                     GetPositionPart(position, PART_LONGITUDE, FORMAT_SEC),
+                                     GetPositionPart(position, PART_LONGITUDE, FORMAT_0POINT01_SEC),
+                                     position->longitude_dir);
+              */
+
+              pos = 0;
+              pos = sprintf(out_pos_string, "%d°", GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG));
+              pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LONGITUDE, FORMAT_MIN));
+              pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LONGITUDE, FORMAT_SEC));
+              pos += sprintf(out_pos_string+pos, "%02d\" ", GetPositionPart(position, PART_LONGITUDE, FORMAT_0POINT01_SEC));
+              sprintf(out_pos_string+pos, "%c", position->longitude_dir);
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    default:
+      break;
+  }
+}

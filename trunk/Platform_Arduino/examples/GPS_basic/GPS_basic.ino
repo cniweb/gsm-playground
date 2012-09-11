@@ -23,6 +23,15 @@
 //#endif
 
 
+#include "SoftwareSerial.h"
+
+#define rxPin A4
+#define txPin A5
+SoftwareSerial GPSdebugserial(rxPin, txPin);
+
+
+
+
 
 // definition of instance of GPS class
 GPS_GE863 gps;
@@ -37,7 +46,8 @@ Date date;
 
 unsigned short redout_voltage;
 unsigned short redout_current;
-char  string[50];
+char  string[100];
+
 
 
 void setup()
@@ -48,10 +58,12 @@ void setup()
 
 //DEBUG_INIT;
 
+  GPSdebugserial.begin(57600);
+  GPSdebugserial.println("Debug: GPS_basic.ino");
 
-
+ 
   // initialization of serial line
-  gsm.InitSerLine(115200);
+  gsm.InitSerLine(57600);
   // turn on GSM module
   gsm.TurnOn();
 
@@ -79,16 +91,40 @@ void setup()
   //ret_val = gps.ResetGPSModul(GPS_RESET_COLDSTART);
   delay(5000);
   gps.ControlGPSAntenna(1);
+  gps.GetGPSAntennaSupplyVoltage(&redout_voltage); 
+  gps.GetGPSAntennaCurrent (&redout_current);
+  gps.GetGPSSwVers(string);
 
 }
 
 
 void loop()
 {
+
   gps.GetGPSData(&position, &time, &date);
-  gps.GetGPSAntennaSupplyVoltage(&redout_voltage); 
-  gps.GetGPSAntennaCurrent (&redout_current);
-  gps.GetGPSSwVers(string);
+GPSdebugserial.print("position->fix: "); GPSdebugserial.println(position.fix);
+
+
+
+  if (position.fix) {
+    // GPS data valid
+
+    // send by debug interface
+
+   
+    GPSdebugserial.print("Lat: ");
+    gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string);
+    GPSdebugserial.println(string);
+    GPSdebugserial.print("Longitude: ");
+    gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_1, string);
+    GPSdebugserial.println(string);
+
+    //gsm.IsUserButtonPushed()
+  }
+  else {
+    // send by debug interface
+ GPSdebugserial.println("GPS data not valid");
+  }
 
   delay(1000);
 }

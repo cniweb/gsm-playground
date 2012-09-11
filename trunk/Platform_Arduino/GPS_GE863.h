@@ -39,13 +39,32 @@ enum reset_type_enum
   GPS_RESET_LAST_ITEM
 };
 
+#define PART_LATITUDE         0
+#define PART_LONGITUDE        1
+
+
+#define FORMAT_DEG            0 // degree
+#define FORMAT_MIN            1 // minute
+#define FORMAT_SEC            2 // seconds
+#define FORMAT_0POINT01_SEC   3 // hundredth of seconds
+                                // it means result:  1 = 0.01 sec.
+                                //                  10 = 0.10 sec.                                                               
+// string format
+#define GPS_POS_FORMAT_1      1 // format DD°MM´SS.SS½
+#define GPS_POS_FORMAT_2      2 // format DD°MM.MMM´ - not supported yet
+#define GPS_POS_FORMAT_3      3 // format DD.DDDDD° - not supported yet
+
+
 typedef struct {
-	int lat_deg;
-	long lat_min;
-	int lon_deg;
-	long lon_min;
-	long alt;
-	byte fix;
+  unsigned long latitude_raw;
+  char          latitude_dir;
+
+  unsigned long longitude_raw;
+  char          longitude_dir;
+	
+	long          altitude;
+
+	byte          fix;
 } Position;
 
 typedef struct {
@@ -73,12 +92,17 @@ class GPS_GE863
     char GetGPSAntennaSupplyVoltage(unsigned short *redout_voltage);
     char GetGPSAntennaCurrent(unsigned short *redout_current); 
     char GetGPSData(Position *position, Time *time, Date *date);
+    long GetPositionPart(Position *position, char part, char format);
+    void ConvertPosition2String(Position *position, char part, char format, char *out_pos_string);
+
 
   private:
     void ParseGPS(char *gpsMsg, Position *pos, Time *time, Date *date);
-    void ParseDateTime(Time *time, Date *date, char *time_str, char *date_str);
-    void ParsePosition(Position *pos, char *lat_str, char *lon_str, char *alt_str);
-    void ParseDegrees(char *str, int *degree, long *minutes);
+    void ParseDateTime(char *time_str, char *date_str, Time *time, Date *date);
+    void ParsePosition(char *lat_str, char *lon_str, char *alt_str, Position *pos);
+    void ParseRawPosition(char *pos_str,
+                          unsigned long *raw_position,
+                          char *direction_char); 
     Position actual_position;
     Time actual_time;
     Date actual_date;
