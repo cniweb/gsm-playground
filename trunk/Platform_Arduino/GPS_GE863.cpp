@@ -421,12 +421,16 @@ debugserial.println("  -->ParseGPS();");
       // -------------------------------
       ret_val = 1;
     }
+    else {
+      // GSP data still not valid
+      // ------------------------
+      ret_val = 0;
+    }
     
   }
   else {
     // coordinates were not read correctly
     // -----------------------------------
-    actual_position.fix = 0;
     ret_val = 0;
   }
 
@@ -679,7 +683,7 @@ char format             // format: use symbolic constant
  * Generally there are 3 types of representation of GPS data which are frequently used
    (D=degree, M=minute, S=second):
 
-  format: use symbolic names: 
+  format: use symbolic names for PART_LATITUDE and PART_LONGITUDE: 
     GPS_POS_FORMAT_1          => format DD°MM´SS.SS½ - supported now
                       
     GPS_POS_FORMAT_2          => format DD°MM.MMM´ - not supported yet
@@ -692,6 +696,7 @@ void GPS_GE863::ConvertPosition2String(
 Position *position,     // position structure 
 char part,              //  for latitude use symbolic name  PART_LATITUDE
                         //  for longitude use symbolic name PART_LONGITUDE
+                        //  for altitude use symbolic name PART_ALTITUDE
 char format,            // format: use symbolic constant
                         //#define GPS_POS_FORMAT_1  1 // format DD°MM´SS.SS½
 char *out_pos_string    // pointer to created string
@@ -765,6 +770,10 @@ char *out_pos_string    // pointer to created string
         default:
           break;
       }
+      break;
+
+    case PART_ALTITUDE:
+      sprintf(out_pos_string, "%d m", position->altitude);
       break;
 
     default:

@@ -41,6 +41,7 @@ enum reset_type_enum
 
 #define PART_LATITUDE         0
 #define PART_LONGITUDE        1
+#define PART_ALTITUDE         2
 
 
 #define FORMAT_DEG            0 // degree

@@ -43,6 +43,7 @@ byte* ptr_to_data;
 Position position;
 Time time;
 Date date;
+signed char gps_data_valid;
 
 unsigned short redout_voltage;
 unsigned short redout_current;
@@ -79,52 +80,67 @@ void setup()
     gsm.DebugPrint(gps.GPSLibVer(), 1);
   #endif
 
-  // wait until a GSM module is registered in the GSM network
-  while (!gsm.IsRegistered()) {
-    gsm.CheckRegistration();
-    delay(1000);
-  }
   
-
+  // reset GPS modul
   ret_val = gps.ResetGPSModul(GPS_RESET_WARMSTART);
-  
-  //ret_val = gps.ResetGPSModul(GPS_RESET_COLDSTART);
+  // delay after initialization
   delay(5000);
-  gps.ControlGPSAntenna(1);
+  // turn on GPS antenna
+  gps.ControlGPSAntenna(1); 
+
+  // read some technical data if necessary
+  /*
   gps.GetGPSAntennaSupplyVoltage(&redout_voltage); 
   gps.GetGPSAntennaCurrent (&redout_current);
   gps.GetGPSSwVers(string);
+  */
 
 }
 
 
 void loop()
 {
+  // check registration
+  // ------------------
+  gsm.CheckRegistration();
 
-  gps.GetGPSData(&position, &time, &date);
-GPSdebugserial.print("position->fix: "); GPSdebugserial.println(position.fix);
+  // read GPS data
+  // -------------
+  gps_data_valid = gps.GetGPSData(&position, &time, &date);
 
 
+  // enable user button if GSM modul is connected to the network
+  // and GPS modul is connected to some satelites(=GPS data are valid)
+  // -----------------------------------------------------------------
+  if (gsm.IsRegistered() && (gps_data_valid == 1) ) {
+    // GSM modul is registered and GPS data are valid
+    // ----------------------------------------------
+    gsm.EnableUserButton();
+    gsm.TurnOnLED();
+  }
+  else {
+    // not registered - so disable button
+    // ----------------------------------
+    gsm.DisableUserButton();
+    gsm.TurnOffLED();
+  }
 
-  if (position.fix) {
-    // GPS data valid
-
-    // send by debug interface
-
-   
+  // send SMS with GPS position if user button is pushed
+  // ---------------------------------------------------
+  if (gsm.IsUserButtonEnable() && gsm.IsUserButtonPushed()) {
     GPSdebugserial.print("Lat: ");
     gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string);
     GPSdebugserial.println(string);
     GPSdebugserial.print("Longitude: ");
     gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_1, string);
     GPSdebugserial.println(string);
-
-    //gsm.IsUserButtonPushed()
+    GPSdebugserial.print("Altitude: ");
+    gps.ConvertPosition2String(&position, PART_ALTITUDE, GPS_POS_FORMAT_1, string);
+    GPSdebugserial.println(string);
   }
-  else {
-    // send by debug interface
- GPSdebugserial.println("GPS data not valid");
-  }
-
-  delay(1000);
+  
+   
+  // wait 500msec. before next iteration
+  // -----------------------------------
+  delay(500);
 }
