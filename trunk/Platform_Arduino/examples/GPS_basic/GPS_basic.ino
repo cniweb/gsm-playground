@@ -47,9 +47,38 @@ signed char gps_data_valid;
 
 unsigned short redout_voltage;
 unsigned short redout_current;
+char  phone_number[15];      // array for the phone number string
+//char  string[60];
 char  string[100];
 
 
+
+void SendSMSWithGPSData(char *phone_num)
+{
+  unsigned char pos;
+
+  pos = 0;
+  //pos = sprintf(string, "%s", "Latitude: ");
+  pos = sprintf(string, "%s", "GPS: ");
+  gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string+strlen(string));
+  //sprintf(string+strlen(string), "%s", "\r\nLongitude: ");
+  sprintf(string+strlen(string), "%s", "\r\n: ");
+  gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_1, string+strlen(string));
+/*
+  sprintf(string+strlen(string), "%s", "\r\nAltitude: ");
+  gps.ConvertPosition2String(&position, PART_ALTITUDE, GPS_POS_FORMAT_1, string+strlen(string));
+
+  sprintf(string+strlen(string), "%s", "\r\nTime: ");
+  gps.ConvertTime2String(&time, string+strlen(string));
+  sprintf(string+strlen(string), "%s", "\r\nDate: ");
+  gps.ConvertDate2String(&date, string+strlen(string));
+*/
+  sprintf(string+strlen(string), "%s", "\r\n");
+
+
+
+  gsm.SendSMS(phone_num, string);
+}
 
 void setup()
 {
@@ -82,7 +111,8 @@ void setup()
 
   
   // reset GPS modul
-  ret_val = gps.ResetGPSModul(GPS_RESET_WARMSTART);
+//  ret_val = gps.ResetGPSModul(GPS_RESET_WARMSTART);
+ret_val = gps.ResetGPSModul(GPS_RESET_HOTSTART);
   // delay after initialization
   delay(5000);
   // turn on GPS antenna
@@ -125,10 +155,12 @@ void loop()
     gsm.TurnOffLED();
   }
 
+
   // send SMS with GPS position if user button is pushed
   // ---------------------------------------------------
   if (gsm.IsUserButtonEnable() && gsm.IsUserButtonPushed()) {
-    GPSdebugserial.print("Lat: ");
+/*
+    GPSdebugserial.print("Latitude: ");
     gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string);
     GPSdebugserial.println(string);
     GPSdebugserial.print("Longitude: ");
@@ -137,10 +169,50 @@ void loop()
     GPSdebugserial.print("Altitude: ");
     gps.ConvertPosition2String(&position, PART_ALTITUDE, GPS_POS_FORMAT_1, string);
     GPSdebugserial.println(string);
+    GPSdebugserial.print("Time: ");
+    gps.ConvertTime2String(&time, string);
+    GPSdebugserial.println(string);
+    GPSdebugserial.print("Date: ");
+    gps.ConvertDate2String(&date, string);
+    GPSdebugserial.println(string);
+*/
+//    SendSMSWithGPSData(phone_number);
   }
+
+
+  // Is there incomming call?
+  // if yes hang it up and send SMS about actual GPS positions
+  // ---------------------------------------------------------
+  switch (gsm.CallStatusWithAuth(phone_number, 0, 0)) { // 0,0 means that we do not need authorization
+    case CALL_NONE:
+      break;
+    case CALL_INCOM_VOICE_AUTH:
+      // there is incoming call and we do not need authorization
+      // make some small delay and hang it up
+      delay(5000);  // 5 sec. delay
+      gsm.HangUp();
+
+      SendSMSWithGPSData(phone_number);
+      /*
+      if (gps_data_valid == 1) {
+        // GPS data valid => SMS with
+        SendSMSWithGPSData(phone_number);
+      }
+      else {
+      }
+      */
+      break;
+    case CALL_ACTIVE_VOICE:
+      // there is active call
+      // make some small delay and hang it up
+      delay(2000);  // 2 sec. delay
+      gsm.HangUp();
+      break;
+  }   
   
    
   // wait 500msec. before next iteration
   // -----------------------------------
   delay(500);
 }
+

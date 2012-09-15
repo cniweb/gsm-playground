@@ -95,6 +95,8 @@ class GPS_GE863
     char GetGPSData(Position *position, Time *time, Date *date);
     long GetPositionPart(Position *position, char part, char format);
     void ConvertPosition2String(Position *position, char part, char format, char *out_pos_string);
+    void ConvertTime2String(Time *time, char *time_string);
+    void ConvertDate2String(Date *date, char *date_string);
 
 
   private:
