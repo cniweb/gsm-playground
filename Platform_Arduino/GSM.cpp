@@ -1291,7 +1291,7 @@ byte GSM::CallStatusWithAuth(char *phone_number,
   char *p_char; 
   char *p_char1;
 
-  phone_number[0] = 0x00;  // no phonr number so far
+  phone_number[0] = 0x00;  // no phone number so far
   if (CLS_FREE != GetCommLineStatus()) return (CALL_COMM_LINE_BUSY);
   SetCommLineStatus(CLS_ATCMD);
   Println("AT+CLCC");

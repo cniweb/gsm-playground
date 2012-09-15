@@ -56,6 +56,30 @@ int GPS_GE863::GPSLibVer(void)
 /**********************************************************
 Method makes a reset of GPS module
 
+reset_type: use symbolic constant for
+
+            GPS_RESET_HW
+            GPS_RESET_COLDSTART
+            GPS_RESET_WARMSTART
+            GPS_RESET_HOTSTART
+
+
+            from manual:
+            -----------
+            0 - Hardware reset: the GPS receiver is reset and restarts 
+                by using the values stored in the internal memory of the GPS receiver.
+            1 - Coldstart (No Almanac, No Ephemeris): this option clears all data 
+                that is currently stored in the internal memory of the GPS receiver 
+                including position, almanac, ephemeris, and time. The stored clock drift however, is retained.
+                It is available in controlled mode only.
+            2 - Warmstart (No ephemeris): this option clears all initialization data in the GPS receiver
+                and subsequently reloads the data that is currently displayed 
+                in the Receiver Initialization Setup screen. The almanac is retained but the ephemeris is cleared. 
+                It is available in controlled mode only.
+            3 - Hotstart (with stored Almanac and Ephemeris): the GPS receiver restarts by using 
+                the values stored in the internal memory of the GPS receiver; validated ephemeris and almanac. 
+                It is available in controlled mode only.
+
 return: 
         ERROR ret. val:
         ---------------
@@ -70,7 +94,7 @@ return:
 
 an example of usage:
         GPS_GE863 gps;
-        gps.ResetGPSModul(RESET); 
+        gps.ResetGPSModul(GPS_RESET_WARMSTART); 
 **********************************************************/
 char GPS_GE863::ResetGPSModul(byte reset_type) 
 {
@@ -677,10 +701,10 @@ char format             // format: use symbolic constant
   return(ret_val);
 }
 
-/*
- * Converts position part(latitude or longitude) into specified string
- *
- * Generally there are 3 types of representation of GPS data which are frequently used
+/****************************************************************************************
+  Converts position part(latitude or longitude) into specified string
+ 
+  Generally there are 3 types of representation of GPS data which are frequently used
    (D=degree, M=minute, S=second):
 
   format: use symbolic names for PART_LATITUDE and PART_LONGITUDE: 
@@ -689,9 +713,7 @@ char format             // format: use symbolic constant
     GPS_POS_FORMAT_2          => format DD°MM.MMM´ - not supported yet
 
     GPS_POS_FORMAT_3          => format DD.DDDDD° - not supported yet
- */
-
-
+ ****************************************************************************************/
 void GPS_GE863::ConvertPosition2String(
 Position *position,     // position structure 
 char part,              //  for latitude use symbolic name  PART_LATITUDE
@@ -710,7 +732,7 @@ char *out_pos_string    // pointer to created string
         case GPS_POS_FORMAT_1:
           if (out_pos_string != NULL) {
             if (position->fix == 0) {
-              sprintf(out_pos_string, "%s", "GPS data not valid"); 
+              sprintf(out_pos_string, "%s", "GPS data are not valid yet."); 
             }
             else {
               /*
@@ -724,7 +746,7 @@ char *out_pos_string    // pointer to created string
                                      position->latitude_dir);
               */
               pos = 0;
-              pos = sprintf(out_pos_string, "%d°", GetPositionPart(position, PART_LATITUDE, FORMAT_DEG));
+              pos = sprintf(out_pos_string, "%d ", GetPositionPart(position, PART_LATITUDE, FORMAT_DEG));
               pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LATITUDE, FORMAT_MIN));
               pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LATITUDE, FORMAT_SEC));
               pos += sprintf(out_pos_string+pos, "%02d\" ", GetPositionPart(position, PART_LATITUDE, FORMAT_0POINT01_SEC));
@@ -743,7 +765,7 @@ char *out_pos_string    // pointer to created string
         case GPS_POS_FORMAT_1:
           if (out_pos_string != NULL) {
             if (position->fix == 0) {
-              sprintf(out_pos_string, "%s", "GPS data not valid"); 
+              sprintf(out_pos_string, "%s", "GPS data are not valid yet.");
             }
             else {
               /*
@@ -758,7 +780,7 @@ char *out_pos_string    // pointer to created string
               */
 
               pos = 0;
-              pos = sprintf(out_pos_string, "%d°", GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG));
+              pos = sprintf(out_pos_string, "%d ", GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG));
               pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LONGITUDE, FORMAT_MIN));
               pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LONGITUDE, FORMAT_SEC));
               pos += sprintf(out_pos_string+pos, "%02d\" ", GetPositionPart(position, PART_LONGITUDE, FORMAT_0POINT01_SEC));
@@ -773,10 +795,59 @@ char *out_pos_string    // pointer to created string
       break;
 
     case PART_ALTITUDE:
-      sprintf(out_pos_string, "%d m", position->altitude);
+      if (out_pos_string != NULL) {
+        if (position->fix == 0) {
+          sprintf(out_pos_string, "%s", "GPS data are not valid yet.");
+        }
+        else {
+          sprintf(out_pos_string, "%d m", position->altitude);
+        }
+      }
       break;
 
     default:
       break;
   }
 }
+
+
+/****************************************************************************************
+ * Converts Time data to string
+ 
+ output: time string "HH:MM:SS" (= hours:minutes:seconds)
+ ****************************************************************************************/
+void GPS_GE863::ConvertTime2String (
+Time *time,               // time data structure
+char *time_string         // output string
+)
+{
+  unsigned char pos;    
+
+  if (time_string != NULL) {
+    pos = 0;
+    pos = sprintf(time_string, "%02d:", time->hours);
+    pos += sprintf(time_string+pos, "%02d:", time->min);
+    sprintf(time_string+pos, "%02d", time->sec);
+  }
+}
+
+/****************************************************************************************
+ * Converts Date data to string
+ 
+ output: date string "YYYY-MM-DD" (= year-month-day)
+ ****************************************************************************************/
+void GPS_GE863::ConvertDate2String (
+Date *date,               // time data structure
+char *date_string         // output string
+)
+{
+  unsigned char pos;    
+
+  if (date_string != NULL) {
+    pos = 0;
+    pos = sprintf(date_string, "%d-", date->year);
+    pos += sprintf(date_string+pos, "%02d-", date->month);
+    sprintf(date_string+pos, "%02d", date->day);
+  }
+}
+
