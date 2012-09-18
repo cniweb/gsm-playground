@@ -177,6 +177,8 @@ void GSM::InitParam(byte group)
       SendATCmdWaitResp("AT#GPIO=5,0,2", 500, 20, "OK", 5);
       // Switch OFF User LED- just as signalization we are finished
       SendATCmdWaitResp("AT#GPIO=8,0,1", 500, 20, "OK", 5);
+      // set character set ”8859-1” - ISO 8859 Latin 1    
+      //SendATCmdWaitResp("AT+CSCS=\"8859-1\"", 500, 20, "OK", 5);
       SetCommLineStatus(CLS_FREE);
       break;
 

@@ -746,10 +746,10 @@ char *out_pos_string    // pointer to created string
                                      position->latitude_dir);
               */
               pos = 0;
-              pos = sprintf(out_pos_string, "%d ", GetPositionPart(position, PART_LATITUDE, FORMAT_DEG));
+              pos = sprintf(out_pos_string, "%dd", GetPositionPart(position, PART_LATITUDE, FORMAT_DEG)); // "d" as degree as we can not use "°" in SMS
               pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LATITUDE, FORMAT_MIN));
               pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LATITUDE, FORMAT_SEC));
-              pos += sprintf(out_pos_string+pos, "%02d\" ", GetPositionPart(position, PART_LATITUDE, FORMAT_0POINT01_SEC));
+              pos += sprintf(out_pos_string+pos, "%02d\"", GetPositionPart(position, PART_LATITUDE, FORMAT_0POINT01_SEC));
               sprintf(out_pos_string+pos, "%c", position->latitude_dir);
             }
           }
@@ -765,7 +765,7 @@ char *out_pos_string    // pointer to created string
         case GPS_POS_FORMAT_1:
           if (out_pos_string != NULL) {
             if (position->fix == 0) {
-              sprintf(out_pos_string, "%s", "GPS data are not valid yet.");
+              //sprintf(out_pos_string, "%s", "GPS data are not valid yet.");
             }
             else {
               /*
@@ -780,10 +780,10 @@ char *out_pos_string    // pointer to created string
               */
 
               pos = 0;
-              pos = sprintf(out_pos_string, "%d ", GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG));
+              pos = sprintf(out_pos_string, "%dd", GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG)); // "d" as degree as we can not use "°" in SMS
               pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LONGITUDE, FORMAT_MIN));
               pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LONGITUDE, FORMAT_SEC));
-              pos += sprintf(out_pos_string+pos, "%02d\" ", GetPositionPart(position, PART_LONGITUDE, FORMAT_0POINT01_SEC));
+              pos += sprintf(out_pos_string+pos, "%02d\"", GetPositionPart(position, PART_LONGITUDE, FORMAT_0POINT01_SEC));
               sprintf(out_pos_string+pos, "%c", position->longitude_dir);
             }
           }
