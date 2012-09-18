@@ -48,8 +48,8 @@ signed char gps_data_valid;
 unsigned short redout_voltage;
 unsigned short redout_current;
 char  phone_number[15];      // array for the phone number string
-//char  string[60];
-char  string[100];
+char  string[65];
+
 
 
 
@@ -58,25 +58,31 @@ void SendSMSWithGPSData(char *phone_num)
   unsigned char pos;
 
   pos = 0;
-  //pos = sprintf(string, "%s", "Latitude: ");
-  pos = sprintf(string, "%s", "GPS: ");
+  pos = sprintf(string, "%s", "GPS:");
   gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string+strlen(string));
-  //sprintf(string+strlen(string), "%s", "\r\nLongitude: ");
-  sprintf(string+strlen(string), "%s", "\r\n: ");
+  sprintf(string+strlen(string), "%s", " ");
   gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_1, string+strlen(string));
-/*
-  sprintf(string+strlen(string), "%s", "\r\nAltitude: ");
-  gps.ConvertPosition2String(&position, PART_ALTITUDE, GPS_POS_FORMAT_1, string+strlen(string));
+  sprintf(string+strlen(string), "%s", "\r\n");
+  sprintf(string+strlen(string), "%s", "D/T:");
+  gps.ConvertDate2String(&date, string+strlen(string));
+  sprintf(string+strlen(string), "%s", " ");
+  gps.ConvertTime2String(&time, string+strlen(string));
+  sprintf(string+strlen(string), "%s", "\r\n");
 
+/*
+  pos = 0;
+  pos = sprintf(string, "%s", "Lat: "); // Latitude
+  gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string+strlen(string));
+  sprintf(string+strlen(string), "%s", "\r\nLong: "); // Longitude
+  gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_1, string+strlen(string));
+  sprintf(string+strlen(string), "%s", "\r\nAlt: ");  // Altitude
+  gps.ConvertPosition2String(&position, PART_ALTITUDE, GPS_POS_FORMAT_1, string+strlen(string));
   sprintf(string+strlen(string), "%s", "\r\nTime: ");
   gps.ConvertTime2String(&time, string+strlen(string));
   sprintf(string+strlen(string), "%s", "\r\nDate: ");
   gps.ConvertDate2String(&date, string+strlen(string));
 */
-  sprintf(string+strlen(string), "%s", "\r\n");
-
-
-
+  
   gsm.SendSMS(phone_num, string);
 }
 
@@ -111,8 +117,9 @@ void setup()
 
   
   // reset GPS modul
-//  ret_val = gps.ResetGPSModul(GPS_RESET_WARMSTART);
-ret_val = gps.ResetGPSModul(GPS_RESET_HOTSTART);
+  ret_val = gps.ResetGPSModul(GPS_RESET_HOTSTART);
+  //  ret_val = gps.ResetGPSModul(GPS_RESET_WARMSTART);
+
   // delay after initialization
   delay(5000);
   // turn on GPS antenna
@@ -176,7 +183,7 @@ void loop()
     gps.ConvertDate2String(&date, string);
     GPSdebugserial.println(string);
 */
-//    SendSMSWithGPSData(phone_number);
+    SendSMSWithGPSData("123456789");
   }
 
 
