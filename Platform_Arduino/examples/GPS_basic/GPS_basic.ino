@@ -17,19 +17,6 @@
 
 #include "GPS_GE863.h"
 
-//#ifdef DEBUG_PRINT_DEVELOPMENT
-//  #include "SoftwareSerial.h"
-//  #include "Debug.h"
-//#endif
-
-
-#include "SoftwareSerial.h"
-
-#define rxPin A4
-#define txPin A5
-SoftwareSerial GPSdebugserial(rxPin, txPin);
-
-
 
 
 
@@ -48,7 +35,8 @@ signed char gps_data_valid;
 unsigned short redout_voltage;
 unsigned short redout_current;
 char  phone_number[15];      // array for the phone number string
-char  string[65];
+//char  string[65]; // for short SMS variant
+char  string[120]; // for longer SMS variant
 
 
 
@@ -57,6 +45,8 @@ void SendSMSWithGPSData(char *phone_num)
 {
   unsigned char pos;
 
+/*
+  // short SMS variant
   pos = 0;
   pos = sprintf(string, "%s", "GPS:");
   gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string+strlen(string));
@@ -68,8 +58,10 @@ void SendSMSWithGPSData(char *phone_num)
   sprintf(string+strlen(string), "%s", " ");
   gps.ConvertTime2String(&time, string+strlen(string));
   sprintf(string+strlen(string), "%s", "\r\n");
+*/
 
-/*
+
+  // longer SMS variant
   pos = 0;
   pos = sprintf(string, "%s", "Lat: "); // Latitude
   gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string+strlen(string));
@@ -81,23 +73,13 @@ void SendSMSWithGPSData(char *phone_num)
   gps.ConvertTime2String(&time, string+strlen(string));
   sprintf(string+strlen(string), "%s", "\r\nDate: ");
   gps.ConvertDate2String(&date, string+strlen(string));
-*/
+
   
   gsm.SendSMS(phone_num, string);
 }
 
 void setup()
 {
-//  #ifdef DEBUG_PRINT_DEVELOPMENT
-//    debug.Init();
-//  #endif
-
-//DEBUG_INIT;
-
-  GPSdebugserial.begin(57600);
-  GPSdebugserial.println("Debug: GPS_basic.ino");
-
- 
   // initialization of serial line
   gsm.InitSerLine(57600);
   // turn on GSM module
@@ -166,24 +148,8 @@ void loop()
   // send SMS with GPS position if user button is pushed
   // ---------------------------------------------------
   if (gsm.IsUserButtonEnable() && gsm.IsUserButtonPushed()) {
-/*
-    GPSdebugserial.print("Latitude: ");
-    gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_1, string);
-    GPSdebugserial.println(string);
-    GPSdebugserial.print("Longitude: ");
-    gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_1, string);
-    GPSdebugserial.println(string);
-    GPSdebugserial.print("Altitude: ");
-    gps.ConvertPosition2String(&position, PART_ALTITUDE, GPS_POS_FORMAT_1, string);
-    GPSdebugserial.println(string);
-    GPSdebugserial.print("Time: ");
-    gps.ConvertTime2String(&time, string);
-    GPSdebugserial.println(string);
-    GPSdebugserial.print("Date: ");
-    gps.ConvertDate2String(&date, string);
-    GPSdebugserial.println(string);
-*/
-    SendSMSWithGPSData("123456789");
+    // use true phone number for sennding a SMS about GPS data
+    //SendSMSWithGPSData("123456789");
   }
 
 
@@ -200,14 +166,6 @@ void loop()
       gsm.HangUp();
 
       SendSMSWithGPSData(phone_number);
-      /*
-      if (gps_data_valid == 1) {
-        // GPS data valid => SMS with
-        SendSMSWithGPSData(phone_number);
-      }
-      else {
-      }
-      */
       break;
     case CALL_ACTIVE_VOICE:
       // there is active call

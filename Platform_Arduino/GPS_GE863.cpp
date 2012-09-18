@@ -16,8 +16,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */  
 
-//#include "Debug.h"
-#include <SoftwareSerial.h>
 #include "GPS_GE863.h"
 
 
@@ -27,18 +25,13 @@ extern "C" {
 }
 
 
-#include "SoftwareSerial.h"
-#define rxPin A4
-#define txPin A5
-SoftwareSerial debugserial(rxPin, txPin);
-
 
 /**********************************************************
 Constructor
 **********************************************************/
 GPS_GE863::GPS_GE863(void)
 {
-debugserial.begin(57600);
+
 }
 
 /**********************************************************
@@ -101,8 +94,6 @@ char GPS_GE863::ResetGPSModul(byte reset_type)
   char ret_val = -1;
   char cmd[15];
 
-//debugserial.begin(57600);
-debugserial.println("Debug: GPS_GE863.cpp");
 
   if (CLS_FREE != gsm.GetCommLineStatus()) return (ret_val);
   gsm.SetCommLineStatus(CLS_ATCMD);
@@ -123,19 +114,14 @@ debugserial.println("Debug: GPS_GE863.cpp");
       strcat(cmd, "3"); // add character "3"
       break;
   }
-#ifdef DEBUG_PRINT_DEVELOPMENT
-  debug.Println(cmd);
-#endif
-//DEBUG_PRINTLN_STRING(cmd);
+
   ret_val = gsm.SendATCmdWaitResp(cmd, 5000, 100, "OK", 1);
   if (ret_val == AT_RESP_OK) {
     // OK response
     ret_val = 1;
   }
   else ret_val = 0;
-#ifdef DEBUG_PRINT_DEVELOPMENT
-  debug.Println(ret_val);
-#endif
+
   gsm.SetCommLineStatus(CLS_FREE);
   return (ret_val);
 }
@@ -230,9 +216,6 @@ char GPS_GE863::GPSPowerUpOrDown(unsigned char command)
     ret_val = 1;
   }
   else ret_val = 0;
-
-
-
 
   gsm.SetCommLineStatus(CLS_FREE);
   return (ret_val);
@@ -426,18 +409,14 @@ char GPS_GE863::GetGPSData(Position *position, Time *time, Date *date)
   char ret_val = -1;
   char cmd[15];
 
-debugserial.println("GPS_GE863::GetGPSData();");
 
   if (CLS_FREE != gsm.GetCommLineStatus()) return (ret_val);
   gsm.SetCommLineStatus(CLS_ATCMD);
 
   ret_val = gsm.SendATCmdWaitResp("AT$GPSACP", 5000, 100, "", 1);
-debugserial.print("  -->ret_val: ");
-debugserial.println(ret_val, DEC);
   if (ret_val == AT_RESP_OK) {
     // there is some response
     // ----------------------
-debugserial.println("  -->ParseGPS();");
     actual_position.fix = 0;
     ParseGPS((char *)&gsm.comm_buf[0], &actual_position, &actual_time, &actual_date);
     if (actual_position.fix > 0) {
@@ -493,9 +472,6 @@ void GPS_GE863::ParseGPS(char *gpsMsg, Position *pos, Time *time, Date *date) {
   char nr_sat[4];
 
 	//$GPSACP: 120631.999,5433.9472N,00954.8768E,1.0,46.5,3,167.28,0.36,0.19,130707,11\r
-debugserial.println("GPS_GE863::ParseGPS();");  
-debugserial.print("  -->gpsMsg: ");
-debugserial.println(gpsMsg);
 
   gpsMsg = gsm.Skip(gpsMsg, ':');                // Skip prolog
   gpsMsg = gsm.ReadToken(gpsMsg, time_str, '.');     // time, hhmmss
@@ -513,17 +489,6 @@ debugserial.println(gpsMsg);
   gpsMsg = gsm.ReadToken(gpsMsg, nr_sat, '\n');  // number of sats
 
 
-debugserial.print("  -->time_str: ");
-debugserial.println(time_str);
-debugserial.print("  -->lat_buf: ");
-debugserial.println(lat_buf);
-debugserial.print("  -->lon_buf: ");
-debugserial.println(lon_buf);
-debugserial.print("  -->date_str: ");
-debugserial.println(date_str);
-
-
-
 
   if (fix != '0') {
     ParseDateTime(time_str, date_str, time, date);
@@ -533,8 +498,6 @@ debugserial.println(date_str);
   else {
     pos->fix = 0;
   }
-debugserial.print("  -->fix: ");
-debugserial.println(pos->fix, DEC);
 
 }
 
