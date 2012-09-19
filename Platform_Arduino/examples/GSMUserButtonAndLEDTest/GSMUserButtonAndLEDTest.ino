@@ -29,7 +29,7 @@
 void setup()
 {
   // initialization of serial line
-  gsm.InitSerLine(115200);
+  gsm.InitSerLine(57600);
   // turn on GSM module
   gsm.TurnOn();
   

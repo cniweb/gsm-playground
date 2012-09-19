@@ -1,5 +1,21 @@
 /*
-    This sketch demonstrates how to use GPS connection
+    This sketch demonstrates how to use basic GPS functionality based
+    on the GE863GPS module.
+
+    1. The GE863GPS GSM module is switched on.
+    2. Internal GPS module is reset.
+    3. External GPS antenna is switched on.
+    4. Regularly every 500msec.:
+       a) registration to the GSM network is checked 
+       b) valid GPS data is checked
+       c) if registration is valid AND GSP data are valid
+          the user button is enabled(blue LED is switched on)
+       b) if user button is enabled and pushed SMS with GPS data
+          is sent to specified number
+       c) if there is an incoming call from any number then call is hang up
+          and SMS with GPS data is sent to incoming call number
+          
+
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,12 +51,21 @@ signed char gps_data_valid;
 unsigned short redout_voltage;
 unsigned short redout_current;
 char  phone_number[15];      // array for the phone number string
-//char  string[65]; // for short SMS variant
-char  string[120]; // for longer SMS variant
+char  string[120];           // buffer for SMS with GPS data
 
 
 
+/****************************************************************************************
+ * This routine sends SMS with GPS data to the specified phone number
+ 
+ SMS has following format:
 
+ Lat: DD°MM´SS.SS˝<CR><LF>        means GPS Latitude
+ Long: DD°MM´SS.SS˝<CR><LF>       means GPS Longitude
+ Alt: xx m<CR><LF>                means GPS Altitude
+ Time: hh:mm:ss<CR><LF>           means GPS Time
+ Date: yyyy-mm-dd<CR><LF>         means GPS Date
+ ****************************************************************************************/
 void SendSMSWithGPSData(char *phone_num)
 {
   unsigned char pos;
@@ -99,8 +124,11 @@ void setup()
 
   
   // reset GPS modul
+  // hot start is used for faster connection to GPS
+  // -----------------------------------------------
   ret_val = gps.ResetGPSModul(GPS_RESET_HOTSTART);
   //  ret_val = gps.ResetGPSModul(GPS_RESET_WARMSTART);
+
 
   // delay after initialization
   delay(5000);
@@ -113,7 +141,6 @@ void setup()
   gps.GetGPSAntennaCurrent (&redout_current);
   gps.GetGPSSwVers(string);
   */
-
 }
 
 
@@ -148,7 +175,9 @@ void loop()
   // send SMS with GPS position if user button is pushed
   // ---------------------------------------------------
   if (gsm.IsUserButtonEnable() && gsm.IsUserButtonPushed()) {
-    // use true phone number for sennding a SMS about GPS data
+    // uncomment following line 
+    // and use your real phone number for sending a SMS about GPS data
+
     //SendSMSWithGPSData("123456789");
   }
 
@@ -157,10 +186,11 @@ void loop()
   // if yes hang it up and send SMS about actual GPS positions
   // ---------------------------------------------------------
   switch (gsm.CallStatusWithAuth(phone_number, 0, 0)) { // 0,0 means that we do not need authorization
+                                                        // so every incomming call is regarded as valid
     case CALL_NONE:
       break;
     case CALL_INCOM_VOICE_AUTH:
-      // there is incoming call and we do not need authorization
+      // there is incomming call and we do not need authorization
       // make some small delay and hang it up
       delay(5000);  // 5 sec. delay
       gsm.HangUp();
@@ -180,4 +210,5 @@ void loop()
   // -----------------------------------
   delay(500);
 }
+
 
