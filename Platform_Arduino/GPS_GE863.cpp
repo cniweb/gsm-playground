@@ -630,6 +630,9 @@ char format             // format: use symbolic constant
       case FORMAT_MIN:
         ret_val = (position->latitude_raw / 10000) % 100;
         break;
+      case FORMAT_0POINT0001_MIN:
+        ret_val = (position->latitude_raw % 10000);
+        break;
       case FORMAT_SEC:
         ret_val = (position->latitude_raw % 10000) * 6 / 1000;
         break;
@@ -648,6 +651,9 @@ char format             // format: use symbolic constant
         break;
       case FORMAT_MIN:
         ret_val = (position->longitude_raw / 10000) % 100;
+        break;
+      case FORMAT_0POINT0001_MIN:
+        ret_val = (position->longitude_raw % 10000);
         break;
       case FORMAT_SEC:
         ret_val = (position->longitude_raw % 10000) * 6 / 1000;
@@ -688,6 +694,7 @@ char *out_pos_string    // pointer to created string
 )
 {
   unsigned char pos;
+  unsigned long temp;
 
   switch (part) {
     case PART_LATITUDE:
@@ -699,7 +706,7 @@ char *out_pos_string    // pointer to created string
             }
             else {
               /*
-              //this doe not work on Arduino: there is probably a lot of arguments
+              //this does not work on Arduino: there is probably a lot of arguments
               //so next solution is used instead
               sprintf(out_pos_string, "%d°%d'%d.%d\" %c", 
                                      GetPositionPart(position, PART_LATITUDE, FORMAT_DEG),
@@ -713,6 +720,25 @@ char *out_pos_string    // pointer to created string
               pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LATITUDE, FORMAT_MIN));
               pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LATITUDE, FORMAT_SEC));
               pos += sprintf(out_pos_string+pos, "%02d\"", GetPositionPart(position, PART_LATITUDE, FORMAT_0POINT01_SEC));
+              sprintf(out_pos_string+pos, "%c", position->latitude_dir);
+            }
+          }
+          break;
+
+        case GPS_POS_FORMAT_3:
+          if (out_pos_string != NULL) {
+            if (position->fix == 0) {
+              sprintf(out_pos_string, "%s", "GPS data are not valid yet."); 
+            }
+            else {
+              pos = 0;
+              pos = sprintf(out_pos_string, "%d.", GetPositionPart(position, PART_LATITUDE, FORMAT_DEG)); // "d" as degree as we can not use "°" in SMS
+              temp = (position->latitude_raw % 1000000); // now we have "mm.mmmm" part of latitude:   "ddmm.mmmmX"
+              temp = temp * 100; // for better precision
+              temp = temp / 60; // convert num of minute to num. of degree so 1° = 60' 
+                                // now we have decimal part of degree so e.g. 53493  so it means => 0.089155"°"
+                                // so the formater %06ld must be used
+              pos += sprintf(out_pos_string+pos, "%06ld", temp);
               sprintf(out_pos_string+pos, "%c", position->latitude_dir);
             }
           }
@@ -747,6 +773,25 @@ char *out_pos_string    // pointer to created string
               pos += sprintf(out_pos_string+pos, "%d'", GetPositionPart(position, PART_LONGITUDE, FORMAT_MIN));
               pos += sprintf(out_pos_string+pos, "%d.", GetPositionPart(position, PART_LONGITUDE, FORMAT_SEC));
               pos += sprintf(out_pos_string+pos, "%02d\"", GetPositionPart(position, PART_LONGITUDE, FORMAT_0POINT01_SEC));
+              sprintf(out_pos_string+pos, "%c", position->longitude_dir);
+            }
+          }
+          break;
+
+        case GPS_POS_FORMAT_3:
+          if (out_pos_string != NULL) {
+            if (position->fix == 0) {
+              sprintf(out_pos_string, "%s", "GPS data are not valid yet."); 
+            }
+            else {
+              pos = 0;
+              pos = sprintf(out_pos_string, "%d.", GetPositionPart(position, PART_LONGITUDE, FORMAT_DEG)); 
+              temp = (position->longitude_raw % 1000000); // now we have "mm.mmmm" part of longitude:   "dddmm.mmmmX"
+              temp = temp * 100; // for better precision
+              temp = temp / 60; // convert num of minute to num. of degree so 1° = 60' 
+                                // now we have decimal part of degree so e.g. 53493  so it means => 0.089155"°"
+                                // so the formater %06ld must be used
+              pos += sprintf(out_pos_string+pos, "%06ld", temp);
               sprintf(out_pos_string+pos, "%c", position->longitude_dir);
             }
           }

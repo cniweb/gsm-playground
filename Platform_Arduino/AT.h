@@ -173,8 +173,8 @@ class AT
     void Write(byte* data_buffer, unsigned short size); // binary format print
     void Print(char const *string); // ascii format print
     void Println(char const *string); // ascii format print
-    void Print(int value); // ascii format print
-    void Println(int value); // ascii format print
+    void Print(long long_value);
+    void Println(long long_value);
     int  Read(void); // the same like read() in Serial
     void Flush(void); // the same like flush() in Serial
     int  Available(void); // the same like available() in Serial
