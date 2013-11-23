@@ -142,6 +142,19 @@ void AT::Print(char const *string)
   Serial.print(string);
 }
 
+void AT::PrintChar(char ch)
+{
+  Serial.print(ch);
+}
+
+void AT::PrintF(PGM_P string)
+{
+  char c;
+  
+  while ((c = pgm_read_byte(string++)) != 0)
+    Serial.print( c );
+}
+
 void AT::Println(char const *string)
 {
   Serial.println(string);
@@ -178,6 +191,18 @@ void AT::Flush(void)
 int  AT::Available(void)
 {
   return (Serial.available());
+}
+
+
+bool AT::FindUntil(char *target, char *terminator, unsigned long timeout)
+{
+  Serial.setTimeout(timeout);
+  return (Serial.findUntil(target, terminator));
+}
+
+size_t AT::ReadBytes(char *buffer, size_t length)
+{
+  return (Serial.readBytes(buffer, length));
 }
 
 

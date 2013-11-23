@@ -23,7 +23,7 @@
 
 #include "Arduino.h"
 
-#define GSM_LIB_VERSION 106 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 107 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
@@ -46,6 +46,8 @@
                 by changing the communications methods in the AT module
     --------------------------------------------------------------------------
     106       - instance of GSM class is defined directly in the GSM.cpp module
+    --------------------------------------------------------------------------
+    107       - SendDataF() added
     --------------------------------------------------------------------------
 */
 
@@ -268,6 +270,8 @@ class GSM : public AT
                     byte closure_type, uint16_t local_port);
     char CloseSocket(void);
     void SendData(char* str_data);
+    void SendData(const char* str_data);
+    void SendDataF(PGM_P str_data);
     void SendData(byte* data_buffer, unsigned short size);
     uint16_t RcvData(uint16_t start_comm_tmout, uint16_t max_interchar_tmout, byte** ptr_to_rcv_data);
     signed short StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned short size);

@@ -15,7 +15,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */  
-
+#include <avr/pgmspace.h>
 #include "GSM_GPRS.h"
 #include "GSM.h"
 
@@ -312,6 +312,22 @@ void GSM::SendData(char* str_data)
 {
   Print(str_data);
 }
+
+
+void GSM::SendData(const char* str_data)
+{
+  Print(str_data);
+}
+
+
+void GSM::SendDataF(PGM_P str_data)
+{
+  char c;
+  
+  while ((c = pgm_read_byte(str_data++)) != 0)
+    PrintChar(c);
+}
+
 
 void GSM::SendData(byte* data_buffer, unsigned short size)
 {

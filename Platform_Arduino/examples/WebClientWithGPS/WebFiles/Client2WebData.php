@@ -49,13 +49,13 @@
 					echo "RET_E"; // RET_E ´RET_END
 				}
 				else {
-					echo "RET;ERROR - cannot open a file WebData2Client.dat!;";
+					echo "RET_S;ERROR;Cannot open a file WebData2Client.dat!;RET_E";
 				}
 				
 	        }
 	        else
 	        {
-	            echo "RET;ERROR - file Client2WebData.dat doesn't have rights for write!;";
+	            echo "RET_S;ERROR;File Client2WebData.dat doesn't have rights for write!;RET_E";
 	        }
 	}
 ?>

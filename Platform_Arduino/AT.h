@@ -25,7 +25,7 @@
 
 
 
-#define AT_LIB_VERSION 103 // library version X.YY (e.g. 1.00) 100 means 1.00
+#define AT_LIB_VERSION 104 // library version X.YY (e.g. 1.00) 100 means 1.00
 /*
     Version
     -------------------------------------------------------------------------------
@@ -48,6 +48,9 @@
                            Available()
                            These methods have the same behaviour like the methods from Serial
                            module
+    -------------------------------------------------------------------------------
+    104                   - PrintF() added
+                          - FindUntil() added
     -------------------------------------------------------------------------------
     
 */
@@ -172,12 +175,18 @@ class AT
     void Write(byte send_as_binary); // binary format print
     void Write(byte* data_buffer, unsigned short size); // binary format print
     void Print(char const *string); // ascii format print
+    void PrintChar(char ch);
+    void PrintF(PGM_P string);
     void Println(char const *string); // ascii format print
     void Print(long long_value);
     void Println(long long_value);
     int  Read(void); // the same like read() in Serial
     void Flush(void); // the same like flush() in Serial
     int  Available(void); // the same like available() in Serial
+
+    bool FindUntil(char *target, char *terminator, unsigned long timeout); // the same like findUntil() + setTimeout() in serial
+    size_t ReadBytes(char *buffer, size_t length);
+
 
     void RxInit(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
                 byte flush_before_read, byte read_when_buffer_full);
