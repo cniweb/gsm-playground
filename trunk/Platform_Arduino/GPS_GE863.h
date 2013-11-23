@@ -46,8 +46,10 @@ enum reset_type_enum
 
 #define FORMAT_DEG            0 // degree
 #define FORMAT_MIN            1 // minute
-#define FORMAT_SEC            2 // seconds
-#define FORMAT_0POINT01_SEC   3 // hundredth of seconds
+#define FORMAT_0POINT0001_MIN 2 // 0.0001 of minutes it means result:  1 = 0.0001 min.
+                                //                                     10 = 0.0010 min.  
+#define FORMAT_SEC            3 // seconds
+#define FORMAT_0POINT01_SEC   4 // hundredth of seconds
                                 // it means result:  1 = 0.01 sec.
                                 //                  10 = 0.10 sec.                                                               
 // string format

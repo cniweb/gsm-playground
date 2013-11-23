@@ -147,20 +147,28 @@ void AT::Println(char const *string)
   Serial.println(string);
 }
 
-void AT::Print(int int_value)
+void AT::Print(long long_value)
 {
-  Serial.print(int_value);
+  Serial.print(long_value);
 }
 
-void AT::Println(int int_value)
+void AT::Println(long long_value)
 {
-  Serial.println(int_value);
+  Serial.println(long_value);
 }
 
 int  AT::Read(void)
 {
   return (Serial.read());
 }
+
+/*
+int  AT::ReadBytesUntil()
+{
+  Serial.readBytesUntil(character, buffer, length)
+}
+*/
+
 
 void AT::Flush(void)
 {
