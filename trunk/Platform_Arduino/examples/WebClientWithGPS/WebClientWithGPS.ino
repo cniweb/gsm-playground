@@ -34,8 +34,7 @@ GPS_GE863 gps;
 signed char ret_val;
 uint16_t num_of_rx_bytes;
 byte* ptr_to_data;
-//byte buffer[COMM_BUF_LEN+30];
-//byte buffer[30];
+byte buffer[30];
 byte user_button_last_state = 0;
 unsigned short last_temperature;
 byte user_LED_last_request = 0;
@@ -44,11 +43,7 @@ byte GPIO11_last_state = 0;
 byte GPIO12_last_request = 0;
 byte GPIO13_last_request = 0;
 char* ptr_char;
-PROGMEM prog_uchar str_0[]   = {"GET http://www.hwkitchen.4fan.cz/example1/Client2WebData.php?"};
-PROGMEM prog_uchar str_1[]   = {" HTTP/1.1\r\n"}; 
-PROGMEM prog_uchar str_2[]   = {"Host:hwkitchen.cz\r\n"}; 
-PROGMEM prog_uchar str_3[]   = {"Connection: close\r\n\r\n"};
-char buffer[70];
+
 
 // GPS related data
 Position position;
@@ -138,6 +133,7 @@ void loop()
     // -------------
     gps_data_valid = gps.GetGPSData(&position, &time, &date);
 
+
     // open the TCP socket - in case TCP socket is activated the communication line is 
     // in transparent data state so we can not use standard AT commands until TCP socked is not closed
     // -----------------------------------------------------------------------------------------------
@@ -151,96 +147,79 @@ void loop()
            
       // generate GET reguest with data:
       // http://www.hwkitchen.4fan.cz/example1/Client2WebData.php?id=ID_1&temp=41&user_button=NOT_ACTIVATED&GPIO10=LOW&GPIO11=HIGH&GPS_valid=1&GPS_latitude=DD.DDDDDN&GPS_longitude=DD.DDDDDE
-     
-      //gsm.SendData("GET http://www.hwkitchen.4fan.cz/example1/Client2WebData.php?"); 
-      strcpy_P(buffer, (char*)pgm_read_word(&(str_0)));
-      gsm.SendData(buffer);
+      // PSTR means that constant data string is placed in Flash program memory to save RAM memory
+      gsm.SendDataF(PSTR("GET http://www.hwkitchen.4fan.cz/example1/Client2WebData.php?"));
+      
 
-      gsm.SendData("id=ID_123");  // change this ID for identification of your module
+      // -------------------------------------------------------------------------------
+      // -------------------------------------------------------------------------------
+      // !!!!! change this ID for identification of your module on the Web server !!!!!
+      // -------------------------------------------------------------------------------
+      // -------------------------------------------------------------------------------
+      gsm.SendDataF(PSTR("id=ID_123"));
 
-      gsm.SendData("&temp=");
+      // send actual temperature of the GSM module
+      gsm.SendDataF(PSTR("&temp="));
       gsm.Print(last_temperature/10);
 
-      gsm.SendData("&user_button=");
-      if (user_button_last_state == 1) gsm.Print("ACTIVATED");
-      else gsm.Print("NOT_ACTIVATED");
+      // send state of the user button
+      gsm.SendDataF(PSTR("&user_button="));
+      if (user_button_last_state == 1) gsm.PrintF(PSTR("ACTIVATED"));
+      else gsm.PrintF(PSTR("NOT_ACTIVATED"));
 
-      gsm.SendData("&GPIO10=");
-      if (GPIO10_last_state == 1) gsm.Print("HIGH");
-      else gsm.Print("LOW");
+      // send state of the GPIO10
+      gsm.SendDataF(PSTR("&GPIO10="));
+      if (GPIO10_last_state == 1) gsm.PrintF(PSTR("HIGH"));
+      else gsm.PrintF(PSTR("LOW"));
 
-      gsm.SendData("&GPIO11=");
-      if (GPIO11_last_state == 1) gsm.Print("HIGH");
-      else gsm.Print("LOW");
+      // send state of the GPIO11
+      gsm.SendDataF(PSTR("&GPIO11="));
+      if (GPIO11_last_state == 1) gsm.PrintF(PSTR("HIGH"));
+      else gsm.PrintF(PSTR("LOW"));
 
-      gsm.SendData("&GPS_valid=");
+      // send state of the GPS module
+      gsm.SendDataF(PSTR("&GPS_valid="));
       gsm.Print(gps_data_valid);
       if (gps_data_valid) {
-        gsm.SendData("&GPS_latitude=");
+        gsm.SendDataF(PSTR("&GPS_latitude="));
         gps.ConvertPosition2String(&position, PART_LATITUDE, GPS_POS_FORMAT_3, string);
         gsm.Print(string);
 
-        gsm.SendData("&GPS_longitude=");
+        gsm.SendDataF(PSTR("&GPS_longitude="));
         gps.ConvertPosition2String(&position, PART_LONGITUDE, GPS_POS_FORMAT_3, string);
         gsm.Print(string);
       }
       else {
-        gsm.SendData("&GPS_latitude=");
-        gsm.Print("0.000000");
-        gsm.SendData("&GPS_longitude=");
-        gsm.Print("0.000000");
+        gsm.SendDataF(PSTR("&GPS_latitude="));
+        gsm.PrintF(PSTR("0.000000"));
+        gsm.SendDataF(PSTR("&GPS_longitude="));
+        gsm.PrintF(PSTR("0.000000"));
       }
       
       // termination of HTML request
-      //gsm.SendData(" HTTP/1.1\r\n"); 
-      strcpy_P(buffer, (char*)pgm_read_word(&(str_1)));
-      gsm.SendData(buffer);
+      gsm.SendDataF(PSTR(" HTTP/1.1\r\n")); 
 
-      //gsm.SendData("Host:hwkitchen.cz\r\n");
-      strcpy_P(buffer, (char*)pgm_read_word(&(str_2)));
-      gsm.SendData(buffer);
+      gsm.SendDataF(PSTR("Host:hwkitchen.cz\r\n"));
 
-      //gsm.SendData("Connection: close\r\n\r\n");
-      strcpy_P(buffer, (char*)pgm_read_word(&(str_3)));
-      gsm.SendData(buffer);
+      gsm.SendDataF(PSTR("Connection: close\r\n\r\n"));
 
       // and wait for first incomming data max. 20sec.
-      // receiving will be finished either buffer is full 
-      // or there is no other incomming byte 1000msec. from last receiving byte
-      // !!! Please note that in case buffer is full we have to read again and again 
-      // not to loose any other incoming data !!!
-/*
-      do {
-        // 20000 means: we will wait max. 20 sec. for first incomming character
-        // 2000 means: receiving is finished if there is no other incomming character longer then 2sec.
-        num_of_rx_bytes = gsm.RcvData(20000, 2000, &ptr_to_data);
-        if (num_of_rx_bytes) {
-          // we have received some data
-          // we can analyze the data here etc.
-          // we can e.g. find out if socket was not already closed from the host side
-          // it means find the text <CR><LF>NO CARRIER<CR><LF> etc....
+      // receiving will be finished either in case NO_CARRIER is received
+      // or RET_S;OK string is finished
+      // In case there is no incomming data more than 20sec. reception is alo finished
 
-
-          // just now we only copy incomming data to the temporary buffer
-          memcpy(buffer, ptr_to_data, num_of_rx_bytes);
-          buffer[num_of_rx_bytes] = 0x00;
-          ptr_char = strstr((const char *)buffer, "RET");
-          if (ptr_char[7] == '1') user_LED_last_request = 1;
-          else user_LED_last_request = 0;
-          if (ptr_char[9] == '1') GPIO12_last_request = 1;
-          else GPIO12_last_request = 0;
-          if (ptr_char[11] == '1') GPIO13_last_request = 1;
-          else GPIO13_last_request = 0;
-        }
-        else {
-          // no data were received
-        }
-      } while (num_of_rx_bytes == COMM_BUF_LEN);
-      */    
-      Serial.setTimeout(20000);
-      if (Serial.findUntil("RET_S;OK;", "NO CARRIER")) {
-        // RET;OK; has been found
-        Serial.readBytes((char *)buffer, 5);
+      // Data which are sent beck has a following structure:
+      // "RET_S;OK;X;Y;Z;RET_E"
+      // where X is required state for user LED: '0'=deactivate, '1'=activate
+      //       Y is required state for GPIO12: '0'=deactivate, '1'=activate
+      //       Z is required state for GPIO13: '0'=deactivate, '1'=activate
+      // 
+      // or 
+      // "RET_S;ERROR;Reason of error;RET_E"
+      // --------------------------------------------------------------------
+      if (gsm.FindUntil("RET_S;OK;", "NO CARRIER", 20000)) {
+        // RET_S;OK; has been found
+        gsm.ReadBytes((char *)buffer, 5);
         if (buffer[0] == '1') user_LED_last_request = 1;
         else user_LED_last_request = 0;
         if (buffer[2] == '1') GPIO12_last_request = 1;
@@ -249,43 +228,21 @@ void loop()
         else GPIO13_last_request = 0;
       }
       else {
-        // timeout occured
+        // timeout occured or "NO CARRIER" was found
+        // so RET_S;OK; string has not been find
       }
 
-/*
-      char nalez;
-      Serial.flush();
-      while (gsm.Available()) {
-        //...do promìné c zapiš bajt odeslaný ze serveru 
-        char c = gsm.Read(); 
-        // když objevíš náš poèáteèný kontrolní znak 
-        // tak nález bude true - pravda 
-        // když koneèný tak false 
-        if (c == 'N') nalez = true; 
-        if (c == 'R') nalez = false; 
+      // close the socket      
+      gsm.CloseSocket();
 
-        // když je nález tak ukládej znaky do promìné data 
-        // protože by se nám ukládal i první øídící znak tak, 
-        // jen ukládej když je znak rozdílný od '<' 
-        if (nalez && (c =='N')) buffer[0] = c;
-      }
-*/
 
- 
-      
-      //Serial.setTimeout(2000);
-      //if (!Serial.find("NO CARRIER")) {
-        // now close the socket for a moment 
-        gsm.CloseSocket();
-      //}
-
-      // activate or deactivate LED
-      // --------------------------
+      // activate or deactivate LED according received command
+      // ------------------------------------------------------
       if (user_LED_last_request == 1) gsm.TurnOnLED();
       else gsm.TurnOffLED();
 
-      // activate or deactivate GPIO12 and GPIO13
-      // ----------------------------------------
+      // activate or deactivate GPIO12 and GPIO13 according received command
+      // -------------------------------------------------------------------
       if (GPIO12_last_request == 1) gsm.SetGPIOVal(GPIO12, 1);
       else gsm.SetGPIOVal(GPIO12, 0);
 
@@ -295,8 +252,6 @@ void loop()
 
       // wait some time
       delay(2000);
-
-      
       
     }
     else {
