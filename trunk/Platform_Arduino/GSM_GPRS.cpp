@@ -71,21 +71,21 @@ char GSM::InitGPRS(char* apn, char* login, char* password)
   if (CLS_FREE != GetCommLineStatus()) return (ret_val);
   SetCommLineStatus(CLS_ATCMD);
   // prepare command:  AT+CGDCONT=1,"IP","apn"
-  strcpy(cmd, "AT+CGDCONT=1,\"IP\",\"");
+  strcpy_P(cmd, PSTR("AT+CGDCONT=1,\"IP\",\""));
   strcat(cmd, apn);
-  strcat(cmd, "\""); // add character "
+  strcat_P(cmd, PSTR("\"")); // add character "
   ret_val = SendATCmdWaitResp(cmd, 1000, 100, "OK", 2);
   if (ret_val == AT_RESP_OK) {
     // prepare command:  AT#USERID="login"
-    strcpy(cmd, "AT#USERID=\"");
+    strcpy_P(cmd, PSTR("AT#USERID=\""));
     strcat(cmd, login);
-    strcat(cmd, "\""); // add character "
+    strcat_P(cmd, PSTR("\"")); // add character "
     ret_val = SendATCmdWaitResp(cmd, 1000, 100, "OK", 2);
     if (ret_val == AT_RESP_OK) {
       // prepare command:  AT#PASSW="password"
-      strcpy(cmd, "AT#PASSW=\"");
+      strcpy_P(cmd, PSTR("AT#PASSW=\""));
       strcat(cmd, password);
-      strcat(cmd, "\""); // add character "
+      strcat_P(cmd, PSTR("\"")); // add character "
       ret_val = SendATCmdWaitResp(cmd, 1000, 100, "OK", 2);
       if (ret_val == AT_RESP_OK) ret_val = 1;
       else ret_val = 0;
@@ -139,11 +139,11 @@ char GSM::EnableGPRS(byte open_mode)
 
   if (open_mode == CHECK_AND_OPEN) {
     // first try if the GPRS context has not been already initialized
-    ret_val = SendATCmdWaitResp("AT#GPRS?", 1000, 100, "#GPRS: 0", 2);
+    ret_val = SendATCmdWaitRespF(PSTR("AT#GPRS?"), 1000, 100, "#GPRS: 0", 2);
     if (ret_val == AT_RESP_OK) {
       // context is not initialized => init the context
       //Enable GPRS
-      ret_val = SendATCmdWaitResp("AT#GPRS=1", 10000, 1000, "OK", 1);
+      ret_val = SendATCmdWaitRespF(PSTR("AT#GPRS=1"), 10000, 1000, "OK", 1);
       if (ret_val == AT_RESP_OK) {
         // context was activated
         ret_val = 1;
@@ -155,11 +155,11 @@ char GSM::EnableGPRS(byte open_mode)
   else {
     // CLOSE_AND_REOPEN mode
     //disable GPRS context
-    ret_val = SendATCmdWaitResp("AT#GPRS=0", 10000, 1000, "OK", 3);
+    ret_val = SendATCmdWaitRespF(PSTR("AT#GPRS=0"), 10000, 1000, "OK", 3);
     if (ret_val == AT_RESP_OK) {
       // context is dactivated
       // => activate GPRS context again
-      ret_val = SendATCmdWaitResp("AT#GPRS=1", 10000, 1000, "OK", 1);
+      ret_val = SendATCmdWaitRespF(PSTR("AT#GPRS=1"), 10000, 1000, "OK", 1);
       if (ret_val == AT_RESP_OK) {
         // context was activated
         ret_val = 1;
@@ -200,7 +200,7 @@ char GSM::DisableGPRS(void)
 
   if (CLS_FREE != GetCommLineStatus()) return (ret_val);
   SetCommLineStatus(CLS_ATCMD);
-  ret_val = SendATCmdWaitResp("AT#GPRS=0", 1000, 100, "OK", 2);
+  ret_val = SendATCmdWaitRespF(PSTR("AT#GPRS=0"), 1000, 100, "OK", 2);
   if (ret_val == AT_RESP_OK) {
     // context was disabled
     ret_val = 1;
@@ -256,19 +256,19 @@ char GSM::OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
   if (CLS_FREE != GetCommLineStatus()) return (ret_val);
   SetCommLineStatus(CLS_ATCMD);
   // prepare command:  AT+CGDCONT=1,"IP","apn"
-  strcpy(cmd, "AT#SKTD=");
+  strcpy_P(cmd, PSTR("AT#SKTD="));
   // add socket type
   strcat(cmd, itoa(socket_type, tmp_str, 10));
-  strcat(cmd, ","); // add character ,
+  strcat_P(cmd, PSTR(",")); // add character ,
   // add remote_port
   strcat(cmd, itoa(remote_port, tmp_str, 10));
-  strcat(cmd, ",\""); // add characters ,"
+  strcat_P(cmd, PSTR(",\"")); // add characters ,"
   // add remote addr
   strcat(cmd, remote_addr);
-  strcat(cmd, "\","); // add characters ",
+  strcat_P(cmd, PSTR("\",")); // add characters ",
   // add closure type
   strcat(cmd, itoa(closure_type, tmp_str, 10));
-  strcat(cmd, ","); // add character ,
+  strcat_P(cmd, PSTR(",")); // add character ,
   // add local port
   strcat(cmd, itoa(local_port, tmp_str, 10));
 
@@ -425,7 +425,7 @@ char GSM::CloseSocket(void)
     else {
       // try common AT command just to be sure that the socket
       // has not been already closed
-      ret_val = SendATCmdWaitResp("AT", 1000, 100, "OK", 1);
+      ret_val = SendATCmdWaitRespF(PSTR("AT"), 1000, 100, "OK", 1);
       if (ret_val == AT_RESP_OK) {
         // we are in the standard AT command mode so socket
         // has been already disabled

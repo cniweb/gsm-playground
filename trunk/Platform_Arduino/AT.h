@@ -178,6 +178,7 @@ class AT
     void PrintChar(char ch);
     void PrintF(PGM_P string);
     void Println(char const *string); // ascii format print
+    void PrintlnF(PGM_P string);
     void Print(long long_value);
     void Println(long long_value);
     int  Read(void); // the same like read() in Serial
@@ -199,6 +200,11 @@ class AT
                uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
                char const *response_string,
                byte no_of_attempts);
+
+    char SendATCmdWaitRespF(PGM_P AT_cmd_string,
+                uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
+                char const *response_string,
+                byte no_of_attempts);
 
   private:
     byte comm_line_status;

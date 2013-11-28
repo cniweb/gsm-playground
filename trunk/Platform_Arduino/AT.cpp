@@ -119,6 +119,7 @@ void AT::InitSerLine(long baud_rate)
   SetCommLineStatus(CLS_FREE);
   // pointer is initialized to the first item of comm. buffer
   p_comm_buf = &comm_buf[0];
+
 }
 
 
@@ -158,6 +159,15 @@ void AT::PrintF(PGM_P string)
 void AT::Println(char const *string)
 {
   Serial.println(string);
+}
+
+void AT::PrintlnF(PGM_P string)
+{
+  char c;
+  
+  while ((c = pgm_read_byte(string++)) != 0)
+    Serial.print( c );
+  Serial.println("");
 }
 
 void AT::Print(long long_value)
@@ -451,6 +461,52 @@ char AT::SendATCmdWaitResp(char const *AT_cmd_string,
     if (i > 0) delay(AT_DELAY); 
 
     Println(AT_cmd_string);
+    status = WaitResp(start_comm_tmout, max_interchar_tmout); 
+    if (status == RX_FINISHED) {
+      // something was received but what was received?
+      // ---------------------------------------------
+      if(IsStringReceived(response_string)) {
+        ret_val = AT_RESP_OK;      
+        break;  // response is OK => finish
+      }
+      else ret_val = AT_RESP_ERR_DIF_RESP;
+    }
+    else {
+      // nothing was received
+      // --------------------
+      ret_val = AT_RESP_ERR_NO_RESP;
+    }
+    
+  }
+
+
+  return (ret_val);
+}
+
+/**********************************************************
+Method sends AT command and waits for response
+AT command ia here constant string placed in the Flash memory
+
+return: 
+      AT_RESP_ERR_NO_RESP = -1,   // no response received
+      AT_RESP_ERR_DIF_RESP = 0,   // response_string is different from the response
+      AT_RESP_OK = 1,             // response_string was included in the response
+**********************************************************/
+char AT::SendATCmdWaitRespF(PGM_P AT_cmd_string,
+                uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
+                char const *response_string,
+                byte no_of_attempts)
+{
+  byte status;
+  char ret_val = AT_RESP_ERR_NO_RESP;
+  byte i;
+
+  for (i = 0; i < no_of_attempts; i++) {
+    // delay 500 msec. before sending next repeated AT command 
+    // so if we have no_of_attempts=1 tmout will not occurred
+    if (i > 0) delay(AT_DELAY); 
+
+    PrintlnF(AT_cmd_string);
     status = WaitResp(start_comm_tmout, max_interchar_tmout); 
     if (status == RX_FINISHED) {
       // something was received but what was received?
