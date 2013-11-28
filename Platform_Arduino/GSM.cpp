@@ -101,7 +101,7 @@ void GSM::TurnOn(void)
   SetCommLineStatus(CLS_ATCMD);
 
 
-  while (AT_RESP_ERR_NO_RESP == SendATCmdWaitResp("AT", 500, 20, "OK", 5)) {
+  while (AT_RESP_ERR_NO_RESP == SendATCmdWaitRespF(PSTR("AT"), 500, 20, "OK", 5)) {
     // there is no response => turn on the module
       
     // generate switch on pulse
@@ -156,29 +156,29 @@ void GSM::InitParam(byte group)
       SetCommLineStatus(CLS_ATCMD);
 
       // Reset to the factory settings
-      SendATCmdWaitResp("AT&F1", 1000, 20, "OK", 5);      
+      SendATCmdWaitRespF(PSTR("AT&F1"), 1000, 20, "OK", 5);      
       // switch off echo
-      SendATCmdWaitResp("ATE0", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("ATE0"), 500, 20, "OK", 5);
       // setup fixed baud rate
-      //      SendATCmdWaitResp("AT+IPR=115200", 500, 20, "OK", 5);
+      //      SendATCmdWaitRespF(PSTR("AT+IPR=115200"), 500, 20, "OK", 5);
       sprintf(string, "AT+IPR=%li", actual_baud_rate);
       SendATCmdWaitResp(string, 500, 20, "OK", 5);
       // setup communication mode
 #ifndef GE836_GPS
-      SendATCmdWaitResp("AT#SELINT=1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#SELINT=1"), 500, 20, "OK", 5);
 #else
-      SendATCmdWaitResp("AT#SELINT=2", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#SELINT=2"), 500, 20, "OK", 5);
 #endif
       // Switch ON User LED - just as signalization we are here
-      SendATCmdWaitResp("AT#GPIO=8,1,1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#GPIO=8,1,1"), 500, 20, "OK", 5);
       // Sets GPIO9 as an input = user button
-      SendATCmdWaitResp("AT#GPIO=9,0,0", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#GPIO=9,0,0"), 500, 20, "OK", 5);
       // allow audio amplifier control
-      SendATCmdWaitResp("AT#GPIO=5,0,2", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#GPIO=5,0,2"), 500, 20, "OK", 5);
       // Switch OFF User LED- just as signalization we are finished
-      SendATCmdWaitResp("AT#GPIO=8,0,1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#GPIO=8,0,1"), 500, 20, "OK", 5);
       // set character set ”8859-1” - ISO 8859 Latin 1    
-      //SendATCmdWaitResp("AT+CSCS=\"8859-1\"", 500, 20, "OK", 5);
+      //SendATCmdWaitRespF(PSTR("AT+CSCS=\"8859-1\""), 500, 20, "OK", 5);
       SetCommLineStatus(CLS_FREE);
       break;
 
@@ -188,26 +188,26 @@ void GSM::InitParam(byte group)
       SetCommLineStatus(CLS_ATCMD);
 
       // Audio codec - Full Rate (for DTMF usage)
-      SendATCmdWaitResp("AT#CODEC=1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#CODEC=1"), 500, 20, "OK", 5);
       // Hands free audio path
-      SendATCmdWaitResp("AT#CAP=1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#CAP=1"), 500, 20, "OK", 5);
       // Echo canceller enabled 
-      SendATCmdWaitResp("AT#SHFEC=1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#SHFEC=1"), 500, 20, "OK", 5);
       // Ringer tone select (0 to 32)
-      SendATCmdWaitResp("AT#SRS=26,0", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#SRS=26,0"), 500, 20, "OK", 5);
       // Microphone gain (0 to 7) - response here sometimes takes 
       // more than 500msec. so 1000msec. is more safety
-      SendATCmdWaitResp("AT#HFMICG=7", 1000, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#HFMICG=7"), 1000, 20, "OK", 5);
       // set the SMS mode to text 
-      SendATCmdWaitResp("AT+CMGF=1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT+CMGF=1"), 500, 20, "OK", 5);
       // Auto answer after first ring enabled
       // auto answer is not used
-      //SendATCmdWaitResp("ATS0=1", 500, 20, "OK", 5);
+      //SendATCmdWaitRespF(PSTR("ATS0=1"), 500, 20, "OK", 5);
 
       // select ringer path to handsfree
-      SendATCmdWaitResp("AT#SRP=1", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT#SRP=1"), 500, 20, "OK", 5);
       // select ringer sound level
-      SendATCmdWaitResp("AT+CRSL=2", 500, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT+CRSL=2"), 500, 20, "OK", 5);
       // we must release comm line because SetSpeakerVolume()
       // checks comm line if it is free
       SetCommLineStatus(CLS_FREE);
@@ -216,7 +216,7 @@ void GSM::InitParam(byte group)
       // init SMS storage
       InitSMSMemory();
       // select phonebook memory storage
-      SendATCmdWaitResp("AT+CPBS=\"SM\"", 1000, 20, "OK", 5);
+      SendATCmdWaitRespF(PSTR("AT+CPBS=\"SM\""), 1000, 20, "OK", 5);
       break;
   }
   
@@ -283,10 +283,10 @@ void GSM::SetSpeaker(byte off_on)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   if (off_on) {
-    SendATCmdWaitResp("AT#GPIO=5,1,2", 500, 20, "#GPIO:", 1);
+    SendATCmdWaitRespF(PSTR("AT#GPIO=5,1,2"), 500, 20, "#GPIO:", 1);
   }
   else {
-    SendATCmdWaitResp("AT#GPIO=5,0,2", 500, 20, "#GPIO:", 1);
+    SendATCmdWaitRespF(PSTR("AT#GPIO=5,0,2"), 500, 20, "#GPIO:", 1);
   }
   SetCommLineStatus(CLS_FREE);
 }
@@ -397,9 +397,9 @@ char GSM::SendSMS(char *number_str, char *message_str)
   // try to send SMS 3 times in case there is some problem
   for (i = 0; i < 3; i++) {
     // send  AT+CMGS="number_str"
-    Print("AT+CMGS=\"");
+    PrintF(PSTR("AT+CMGS=\""));
     Print(number_str);  
-    Print("\"\r");
+    PrintF(PSTR("\"\r"));
 
     // 1000 msec. for initial comm tmout
     // 20 msec. for inter character timeout
@@ -499,12 +499,12 @@ char GSM::InitSMSMemory(void)
   ret_val = 0; // not initialized yet
   
   // Disable messages about new SMS from the GSM module 
-  SendATCmdWaitResp("AT+CNMI=2,0", START_LONG_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 2);
+  SendATCmdWaitRespF(PSTR("AT+CNMI=2,0"), START_LONG_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 2);
 
   // send AT command to init memory for SMS in the SIM card
   // response:
   // +CPMS: <usedr>,<totalr>,<usedw>,<totalw>,<useds>,<totals>
-  if (AT_RESP_OK == SendATCmdWaitResp("AT+CPMS=\"SM\",\"SM\",\"SM\"", START_LONG_COMM_TMOUT, START_LONG_COMM_TMOUT, "+CPMS:", 10)) {
+  if (AT_RESP_OK == SendATCmdWaitRespF(PSTR("AT+CPMS=\"SM\",\"SM\",\"SM\""), START_LONG_COMM_TMOUT, START_LONG_COMM_TMOUT, "+CPMS:", 10)) {
     ret_val = 1;
   }
   else ret_val = 0;
@@ -566,13 +566,13 @@ char GSM::IsSMSPresent(byte required_status)
 
   switch (required_status) {
     case SMS_UNREAD:
-      Print("AT+CMGL=\"REC UNREAD\"\r");
+      PrintF(PSTR("AT+CMGL=\"REC UNREAD\"\r"));
       break;
     case SMS_READ:
-      Print("AT+CMGL=\"REC READ\"\r");
+      PrintF(PSTR("AT+CMGL=\"REC READ\"\r"));
       break;
     case SMS_ALL:
-      Print("AT+CMGL=\"ALL\"\r");
+      PrintF(PSTR("AT+CMGL=\"ALL\"\r"));
       break;
   }
 
@@ -691,9 +691,9 @@ char GSM::GetSMS(byte position, char *phone_number, char *SMS_text, byte max_SMS
   ret_val = GETSMS_NO_SMS; // still no SMS
   
   //send "AT+CMGR=X" - where X = position
-  Print("AT+CMGR=");
+  PrintF(PSTR("AT+CMGR="));
   Print((int)position);  
-  Print("\r");
+  PrintF(PSTR("\r"));
 
   // 5000 msec. for initial comm tmout
   // 100 msec. for inter character tmout
@@ -945,9 +945,9 @@ char GSM::DeleteSMS(byte position)
   ret_val = 0; // not deleted yet
   
   //send "AT+CMGD=XY" - where XY = position
-  Print("AT+CMGD=");
+  PrintF(PSTR("AT+CMGD="));
   Print((int)position);  
-  Print("\r");
+  PrintF(PSTR("\r"));
 
 
   // 5000 msec. for initial comm tmout
@@ -1028,9 +1028,9 @@ char GSM::GetPhoneNumber(byte position, char *phone_number)
   phone_number[0] = 0; // phone number not found yet => empty string
   
   //send "AT+CPBR=XY" - where XY = position
-  Print("AT+CPBR=");
+  PrintF(PSTR("AT+CPBR="));
   Print((int)position);  
-  Print("\r");
+  PrintF(PSTR("\r"));
 
   // 5000 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1102,11 +1102,11 @@ char GSM::WritePhoneNumber(byte position, char *phone_number)
   //send: AT+CPBW=XY,"00420123456789"
   // where XY = position,
   //       "00420123456789" = phone number string
-  Print("AT+CPBW=");
+  PrintF(PSTR("AT+CPBW="));
   Print((int)position);  
-  Print(",\"");
+  PrintF(PSTR(",\""));
   Print(phone_number);
-  Print("\"\r");
+  PrintF(PSTR("\"\r"));
 
   // 5000 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1458,9 +1458,9 @@ void GSM::Call(char *number_string)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   // ATDxxxxxx;<CR>
-  Print("ATD");
+  PrintF(PSTR("ATD"));
   Print(number_string);    
-  Print(";\r");
+  PrintF(PSTR(";\r"));
   // 10 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   WaitResp(10000, 20);
@@ -1478,9 +1478,9 @@ void GSM::Call(int sim_position)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   // ATD>"SM" 1;<CR>
-  Print("ATD>\"SM\" ");
+  PrintF(PSTR("ATD>\"SM\" "));
   Print(sim_position);    
-  Print(";\r");
+  PrintF(PSTR(";\r"));
 
   // 10 sec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1516,9 +1516,9 @@ char GSM::SetSpeakerVolume(byte speaker_volume)
   if (speaker_volume > 14) speaker_volume = 14;
   // select speaker volume (0 to 14)
   // AT+CLVL=X<CR>   X<0..14>
-  Print("AT+CLVL=");
+  PrintF(PSTR("AT+CLVL="));
   Print((int)speaker_volume);    
-  Print("\r"); // send <CR>
+  PrintF(PSTR("\r")); // send <CR>
   // 10 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   if (RX_TMOUT_ERR == WaitResp(10000, 20)) {
@@ -1618,9 +1618,9 @@ char GSM::SendDTMFSignal(byte dtmf_tone)
   if (CLS_FREE != GetCommLineStatus()) return (ret_val);
   SetCommLineStatus(CLS_ATCMD);
   // e.g. AT+VTS=5<CR>
-  Print("AT+VTS=");
+  PrintF(PSTR("AT+VTS="));
   Print((int)dtmf_tone);    
-  Print("\r");
+  PrintF(PSTR("\r"));
   // 1 sec. for initial comm tmout
   // 20 msec. for inter character timeout
   if (RX_TMOUT_ERR == WaitResp(1000, 20)) {
@@ -1650,7 +1650,7 @@ byte GSM::IsUserButtonPushed(void)
   byte ret_val = 0;
   if (CLS_FREE != GetCommLineStatus()) return(0);
   SetCommLineStatus(CLS_ATCMD);
-  if (AT_RESP_OK == SendATCmdWaitResp("AT#GPIO=9,2", 2000, MAX_MID_INTERCHAR_TMOUT, "#GPIO: 0,0", 1)) {
+  if (AT_RESP_OK == SendATCmdWaitRespF(PSTR("AT#GPIO=9,2"), 2000, MAX_MID_INTERCHAR_TMOUT, "#GPIO: 0,0", 1)) {
     // user button is pushed
     ret_val = 1;
   }
@@ -1667,7 +1667,7 @@ void GSM::TurnOnLED(void)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   // response here is not important
-  SendATCmdWaitResp("AT#GPIO=8,1,1", 500, 20, "#GPIO:", 1);
+  SendATCmdWaitRespF(PSTR("AT#GPIO=8,1,1"), 500, 20, "#GPIO:", 1);
   SetCommLineStatus(CLS_FREE);
 }
 
@@ -1679,7 +1679,7 @@ void GSM::TurnOffLED(void)
   if (CLS_FREE != GetCommLineStatus()) return;
   SetCommLineStatus(CLS_ATCMD);
   // response here is not important
-  SendATCmdWaitResp("AT#GPIO=8,0,1", 500, 20, "#GPIO:", 1);
+  SendATCmdWaitRespF(PSTR("AT#GPIO=8,0,1"), 500, 20, "#GPIO:", 1);
   SetCommLineStatus(CLS_FREE);
 }
 
@@ -1713,14 +1713,14 @@ char GSM::SetGPIODir(byte GPIO_pin, byte direction)
 
   // e.g. AT#GPIO=9,0,0 - sets as INPUT
   // e.g. AT#GPIO=9,0,1 - sets as OUTPUT and value is "0" - LOW
-  Print("AT#GPIO=");
+  PrintF(PSTR("AT#GPIO="));
   // pin number
   Print((int)GPIO_pin);  
-  Print(",0,"); // if case pin will be OUTPUT - 
+  PrintF(PSTR(",0,")); // if case pin will be OUTPUT - 
                        // first value after initialization will be 0 
   if (direction > 1) direction = 1;
   Print((int)direction); // 0-INPUT, 1-OUTPUT
-  Print("\r");           // finish command = send<CR>
+  PrintF(PSTR("\r"));           // finish command = send<CR>
 
   // 100 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1770,13 +1770,13 @@ char GSM::SetGPIOVal(byte GPIO_pin, byte value)
 
   // e.g. AT#GPIO=9,0,1 - set to "0" - LOW
   // or   AT#GPIO=9,1,1 - set to "1" - HIGH
-  Print("AT#GPIO=");
+  PrintF(PSTR("AT#GPIO="));
   // pin number
   Print((int)GPIO_pin);  
-  Print(",");
+  PrintF(PSTR(","));
   if (value > 1) value = 1;
   Print((int)value);
-  Print(",1\r");  // pin is always set as output
+  PrintF(PSTR(",1\r"));  // pin is always set as output
 
   // 100 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1823,10 +1823,10 @@ char GSM::GetGPIOVal(byte GPIO_pin)
 
 
   //e.g. AT#GPIO=9,2
-  Print("AT#GPIO=");
+  PrintF(PSTR("AT#GPIO="));
   // pin number
   Print((int)GPIO_pin);  
-  Print(",2\r");
+  PrintF(PSTR(",2\r"));
 
   // 100 msec. for initial comm tmout
   // 20 msec. for inter character timeout
@@ -1882,10 +1882,10 @@ int GSM::GetTemp(void)
   // response is in the format: #ADC: 885
 #ifdef GE836_GPS
   // ADC_IN1
-  if (AT_RESP_OK == SendATCmdWaitResp("AT#ADC=1,2,0", 2000, 20, "#ADC", 1)) {
+  if (AT_RESP_OK == SendATCmdWaitRespF(PSTR("AT#ADC=1,2,0"), 2000, 20, "#ADC", 1)) {
 #else 
   // ADC_IN2
-  if (AT_RESP_OK == SendATCmdWaitResp("AT#ADC=2,2,0", 2000, 20, "#ADC", 1)) {
+  if (AT_RESP_OK == SendATCmdWaitRespF(PSTR("AT#ADC=2,2,0"), 2000, 20, "#ADC", 1)) {
 #endif
     // parse the received string
     pos = strchr((char *)comm_buf, ' ');

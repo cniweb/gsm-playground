@@ -258,5 +258,4 @@ void loop()
       // socket was not opened successfully
       gsm.EnableGPRS(CLOSE_AND_REOPEN); // try to close and open socket again
     }
-  
 }

@@ -102,16 +102,16 @@ char GPS_GE863::ResetGPSModul(byte reset_type)
 
   switch (reset_type) {
     case GPS_RESET_HW:
-      strcat(cmd, "0"); // add character "0"
+      strcat_P(cmd, PSTR("0")); // add character "0"
       break;
     case GPS_RESET_COLDSTART:
-      strcat(cmd, "1"); // add character "1"
+      strcat_P(cmd, PSTR("1")); // add character "1"
       break;
     case GPS_RESET_WARMSTART:
-      strcat(cmd, "2"); // add character "2"
+      strcat_P(cmd, PSTR("2")); // add character "2"
       break;
     case GPS_RESET_HOTSTART:
-      strcat(cmd, "3"); // add character "3"
+      strcat_P(cmd, PSTR("3")); // add character "3"
       break;
   }
 
@@ -156,7 +156,7 @@ char GPS_GE863::GetGPSSwVers(char *sw_ver_string)
   gsm.SetCommLineStatus(CLS_ATCMD);
 
   // send command:  AT$GPSSW
-  ret_val = gsm.SendATCmdWaitResp("AT$GPSSW", 5000, 100, "$GPSSW", 1);
+  ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSSW"), 5000, 100, "$GPSSW", 1);
   if (ret_val == AT_RESP_OK) {
     // OK response
     // response example: {0D}{0A}$GPSSW: GSW3.2.4Ti_3.1.00.12-C23P1.00 {0D}{0A}{0D}{0A}OK{0D}{0A}
@@ -205,11 +205,11 @@ char GPS_GE863::GPSPowerUpOrDown(unsigned char command)
 
   if (command == 0) {
     // switch off the GPS module  
-    ret_val = gsm.SendATCmdWaitResp("AT$GPSP=0", 5000, 100, "OK", 1);
+    ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSP=0"), 5000, 100, "OK", 1);
   }
   else {
     // switch on the GPS module(this is a default state)  
-    ret_val = gsm.SendATCmdWaitResp("AT$GPSP=1", 5000, 100, "OK", 1);
+    ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSP=1"), 5000, 100, "OK", 1);
   }
   if (ret_val == AT_RESP_OK) {
     // OK response
@@ -255,11 +255,11 @@ char GPS_GE863::ControlGPSAntenna(unsigned char command)
 
   if (command == 0) {
     // send command:  AT$GPSAT=0
-    ret_val = gsm.SendATCmdWaitResp("AT$GPSAT=0", 5000, 100, "OK", 1);
+    ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSAT=0"), 5000, 100, "OK", 1);
   }
   else {
     // send command:  AT$GPSAT=1
-    ret_val = gsm.SendATCmdWaitResp("AT$GPSAT=1", 5000, 100, "OK", 1);
+    ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSAT=1"), 5000, 100, "OK", 1);
   }
   if (ret_val == AT_RESP_OK) {
     // OK response
@@ -307,7 +307,7 @@ char GPS_GE863::GetGPSAntennaSupplyVoltage(unsigned short *redout_voltage)
 
   *redout_voltage = 0; //until now
   // send command:  AT$GPSAV
-  ret_val = gsm.SendATCmdWaitResp("AT$GPSAV", 5000, 100, "$GPSAV", 1);
+  ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSAV"), 5000, 100, "$GPSAV", 1);
   if (ret_val == AT_RESP_OK) {
     // OK response
     // response example: {0D}{0A}$GPSAV: 3962{0D}{0A}{0D}{0A}OK{0D}{0A}
@@ -360,7 +360,7 @@ char GPS_GE863::GetGPSAntennaCurrent(unsigned short *redout_current)
 
   *redout_current = 0; // until now
   // send command:  AT$GPSAI?
-  ret_val = gsm.SendATCmdWaitResp("AT$GPSAI?", 5000, 100, "$GPSAI", 1);
+  ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSAI?"), 5000, 100, "$GPSAI", 1);
   if (ret_val == AT_RESP_OK) {
     // OK response
     // response example: {0D}{0A}$GPSAI: 0{0D}{0A}{0D}{0A}OK{0D}{0A}
@@ -413,7 +413,7 @@ char GPS_GE863::GetGPSData(Position *position, Time *time, Date *date)
   if (CLS_FREE != gsm.GetCommLineStatus()) return (ret_val);
   gsm.SetCommLineStatus(CLS_ATCMD);
 
-  ret_val = gsm.SendATCmdWaitResp("AT$GPSACP", 5000, 100, "", 1);
+  ret_val = gsm.SendATCmdWaitRespF(PSTR("AT$GPSACP"), 5000, 100, "", 1);
   if (ret_val == AT_RESP_OK) {
     // there is some response
     // ----------------------

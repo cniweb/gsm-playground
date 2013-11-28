@@ -79,7 +79,9 @@ void loop()
       // so we can exchange data
       // here we are trying GET request
       // GET request must be finished by sequence <CR><LF><CR><LF> == \r\n\r\n
-      gsm.SendData("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n");
+      gsm.SendDataF(PSTR("GET http://www.google.com HTTP/1.1\r\n"));
+      gsm.SendDataF(PSTR("Host:hwkitchen.cz\r\n"));
+      gsm.SendDataF(PSTR("Connection: close\r\n\r\n"));
       // and wait for first incomming data max. 20sec.
       // receiving will be finished either buffer is full 
       // or there is no other incomming byte 1000msec. from last receiving byte
