@@ -49,8 +49,12 @@
                            These methods have the same behaviour like the methods from Serial
                            module
     -------------------------------------------------------------------------------
-    104                   - PrintF() added
+    104                   - added functions finished with F which can be used with constant string placed
+                            in the Flash memory to save RAM
+                          - PrintF() added
+                          - PrintlnF() added
                           - FindUntil() added
+                          - SendATCmdWaitRespF
     -------------------------------------------------------------------------------
     
 */
@@ -159,6 +163,7 @@ class AT
 
 #ifdef DEBUG_PRINT
     void DebugPrint(const char *string_to_print, byte last_debug_print);
+    void DebugPrintF(PGM_P string_to_print, byte last_debug_print);
     void DebugPrint(int number_to_print, byte last_debug_print);
 #endif
 

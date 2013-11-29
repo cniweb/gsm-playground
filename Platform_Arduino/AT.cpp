@@ -75,16 +75,25 @@ void AT::DebugPrint(const char *string_to_print, byte last_debug_print)
 {
   if (last_debug_print) {
     Println(string_to_print);
-    SendATCmdWaitResp("AT", START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
+    SendATCmdWaitRespF(PSTR("AT"), START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
   }
   else Print(string_to_print);
+}
+
+void AT::DebugPrintF(PGM_P string_to_print, byte last_debug_print)
+{
+  if (last_debug_print) {
+    PrintlnF(string_to_print);
+    SendATCmdWaitRespF(PSTR("AT"), START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
+  }
+  else PrintF(string_to_print);
 }
 
 void AT::DebugPrint(int number_to_print, byte last_debug_print)
 {
   Println(number_to_print);
   if (last_debug_print) {
-    SendATCmdWaitResp("AT", START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
+    SendATCmdWaitRespF(PSTR("AT"), START_SHORT_COMM_TMOUT, MAX_INTERCHAR_TMOUT, "OK", 1);
   }
 }
 #endif

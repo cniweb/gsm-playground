@@ -113,7 +113,7 @@ void GSM::TurnOn(void)
 #ifdef DEBUG_PRINT
     // parameter 0 - because module is off so it is not necessary 
     // to send finish AT<CR> here
-    DebugPrint("DEBUG: GSM module is off\r\n", 0);
+    DebugPrintF(PSTR("DEBUG: GSM module is off\r\n"), 0);
 #endif
 
 #ifndef GE836_GPS
@@ -1169,10 +1169,10 @@ char GSM::ComparePhoneNumber(byte position, char *phone_number)
   char sim_phone_number[20];
 
 #ifdef DEBUG_PRINT
-    DebugPrint("DEBUG ComparePhoneNumber\r\n", 0);
-    DebugPrint("      #1: ", 0);
+    DebugPrintF(PSTR("DEBUG ComparePhoneNumber\r\n"), 0);
+    DebugPrintF(PSTR("      #1: "), 0);
     DebugPrint(position, 0);
-    DebugPrint("      #2: ", 0);
+    DebugPrintF(PSTR("      #2: "), 0);
     DebugPrint(phone_number, 1);
 #endif
 
@@ -1186,7 +1186,7 @@ char GSM::ComparePhoneNumber(byte position, char *phone_number)
       // phone numbers are the same
       // --------------------------
 #ifdef DEBUG_PRINT
-    DebugPrint("DEBUG ComparePhoneNumber: Phone numbers are the same", 1);
+    DebugPrintF(PSTR("DEBUG ComparePhoneNumber: Phone numbers are the same"), 1);
 #endif
       ret_val = 1;
     }
