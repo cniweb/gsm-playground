@@ -42,11 +42,11 @@ void setup()
 
   #ifdef DEBUG_PRINT
     // print library version
-    gsm.DebugPrint("DEBUG AT library version: ", 0);
+    gsm.DebugPrintF(PSTR("DEBUG AT library version: "), 0);
     gsm.DebugPrint(gsm.LibVer(), 0);
-    gsm.DebugPrint("DEBUG GSM library version: ", 0);
+    gsm.DebugPrintF(PSTR("DEBUG GSM library version: "), 0);
     gsm.DebugPrint(gsm.GSMLibVer(), 0);
-    gsm.DebugPrint("DEBUG GPRS library version: ", 0);
+    gsm.DebugPrintF(PSTR("DEBUG GPRS library version: "), 0);
     gsm.DebugPrint(gsm.GPRSLibVer(), 1);
   #endif
 

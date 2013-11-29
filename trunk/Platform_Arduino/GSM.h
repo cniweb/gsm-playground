@@ -47,7 +47,9 @@
     --------------------------------------------------------------------------
     106       - instance of GSM class is defined directly in the GSM.cpp module
     --------------------------------------------------------------------------
-    107       - SendDataF() added
+    107       - added functions finished with F which can be used with constant string placed
+                in the Flash memory to save RAM
+              - SendDataF() added
     --------------------------------------------------------------------------
 */
 
