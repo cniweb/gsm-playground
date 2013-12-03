@@ -13,6 +13,59 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+    //----------------------------------------
+      Description of sketch WebClientWithGPS
+    //----------------------------------------
+
+     This sketch works as a web client. It means that GSM-GPS Playground Shield is connected via GPRS connection
+     to the Internet through GSM provider and periodically tries to connect to the web server http://www.hwkitchen.4fan.cz.
+     During this connection program sends following data to the server(by the GET method):
+     - ID of the module: id=ID_123 (Please change it in the code to have your own)
+     - GSM module temperature:&temp=xxxx
+     - user button state: &user_button=ACTIVATED/DEACTIVATED
+     - state of GPIO10: &GPIO10=HIGH/LOW
+     - state of GPIO11: &GPIO10=HIGH/LOW
+     - GPS data if data are valid: &GPS_valid=1/0
+     - in case GPS data are valid there are 2 additional items:
+       - latitude: &GPS_latitude=xx.yyyyyyN
+       - longitude: &GPS_longitude=ZZ.zzzzzE
+
+    The web server parses received information and saves them to the data file on the server. If client(internet browser)
+    connects to this web page server reads data from the file and sends them as a web page to the client.
+    This web page also includes some items for controlling of:
+    - user LED
+    - output GPIO12
+    - output GPIO13
+
+    These information are sent back from the server to the GSM-GPS Playground Shield as a response during "GET method".
+    One transaction(data are sent to the server from GSM module by GET method and response is received back to the GSM module) takes 
+    cca. 10sec. There is such a big delay because the GPRS is used here. Also during this transaction the GSM module is in transparent 
+    DATA state so it is not possible to use standard AT command during time. Because the AT commands are used for user button checking
+    the user button must be hold during whole "one transaction time - cca. 10sec." to detect button ACTIVATED state. To eliminate this 
+    disadvantage it would be necessary to use so called "IP Easy" possibilities of the Telit GSM-GPS module(with firmware 7.02.03 and higher)
+    where the TCP socket can be controlled by standard AT commands and no transparent DATA connection are necessary. However this sketch
+    is general and can be used also together with older GSM Playground Shield.
+
+
+    The advantage of this approach(unlike the Web Server) is the fact that Web Client can work with dynamic and also with not a public
+    IP address(what is the standard setting of GSM provider). The other benefit is that the web pages can be quite complex 
+    because they are placed and executed on the server.
+
+    The web pages created for this example are placed here:
+    http://www.hwkitchen.4fan.cz
+
+    This is only example so incoming data are stored to the file and are read also from the file and web pages
+    displays last received data of one module. So in case more modules are connected "in the same time" the last one is a "winner".
+
+    For serious and more complex application would be necessary to use your own web server and probably some database to store 
+    and restore data from corresponding module to maintain more that one GSM-GPS Playground Shield at a time.
+    but this is out of scope of this example.
+
+
+    We use www.endora.cz as a free webhosting server for this example but there are a lot of providers with free hosting services.
+
  */
 #include <avr/pgmspace.h>
 #include "GPS_GE863.h"
@@ -251,6 +304,10 @@ void loop()
 
 
       // wait some time
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      // In case this timeout is increased the response to/from the web server is slower
+      // but less data are transfered e.g. per day so the servis is cheaper.
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       delay(2000);
       
     }

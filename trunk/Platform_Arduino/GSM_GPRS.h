@@ -19,7 +19,7 @@
 #define __GSM_GPRS
 
 
-#define GPRS_LIB_VERSION 102 // library version X.YY (e.g. 1.00)
+#define GPRS_LIB_VERSION 103 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
@@ -32,6 +32,8 @@
     --------------------------------------------------------------------------
     102       GPRS is a part of GSM class to avoid repeated inheritance in future
               (in case other module will be added, like GPS)
+    --------------------------------------------------------------------------
+    103       SendDataF() function added
     --------------------------------------------------------------------------
 */
 
