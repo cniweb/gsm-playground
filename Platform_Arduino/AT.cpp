@@ -194,12 +194,12 @@ int  AT::Read(void)
   return (Serial.read());
 }
 
-/*
-int  AT::ReadBytesUntil()
+
+int  AT::ReadBytesUntil(char terminator, char *buffer, size_t length)
 {
-  Serial.readBytesUntil(character, buffer, length)
+  return (Serial.readBytesUntil(terminator, buffer, length));
 }
-*/
+
 
 
 void AT::Flush(void)

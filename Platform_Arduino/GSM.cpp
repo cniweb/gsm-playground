@@ -65,7 +65,9 @@ GSM::GSM(void)
   module_status = STATUS_NONE;
   
   // initialization of speaker volume
-  last_speaker_volume = 0; 
+  last_speaker_volume = 0;
+  // until now IP address has not been assigned
+  strcpy(IP_address, "0.0.0.0");
 }
 
 

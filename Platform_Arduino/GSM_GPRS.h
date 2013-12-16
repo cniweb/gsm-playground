@@ -19,7 +19,7 @@
 #define __GSM_GPRS
 
 
-#define GPRS_LIB_VERSION 103 // library version X.YY (e.g. 1.00)
+#define GPRS_LIB_VERSION 104 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------

@@ -41,9 +41,9 @@
 
     These information are sent back from the server to the GSM-GPS Playground Shield as a response during "GET method".
     One transaction(data are sent to the server from GSM module by GET method and response is received back to the GSM module) takes 
-    cca. 10sec. There is such a big delay because the GPRS is used here. Also during this transaction the GSM module is in transparent 
+    cca. 2-3sec. This delay is here because of some latency of GPRS connection. Also during this transaction the GSM module is in transparent 
     DATA state so it is not possible to use standard AT command during time. Because the AT commands are used for user button checking
-    the user button must be hold during whole "one transaction time - cca. 10sec." to detect button ACTIVATED state. To eliminate this 
+    the user button must hold during whole "one transaction time - cca. 3sec." to detect button ACTIVATED state. To eliminate this 
     disadvantage it would be necessary to use so called "IP Easy" possibilities of the Telit GSM-GPS module(with firmware 7.02.03 and higher)
     where the TCP socket can be controlled by standard AT commands and no transparent DATA connection are necessary. However this sketch
     is general and can be used also together with older GSM Playground Shield.
@@ -60,8 +60,8 @@
     displays last received data of one module. So in case more modules are connected "in the same time" the last one is a "winner".
 
     For serious and more complex application would be necessary to use your own web server and probably some database to store 
-    and restore data from corresponding module to maintain more that one GSM-GPS Playground Shield at a time.
-    but this is out of scope of this example.
+    and restore data from corresponding module to maintain more than one GSM-GPS Playground Shield at a time.
+    But this is out of scope of this example.
 
 
     We use www.endora.cz as a free webhosting server for this example but there are a lot of providers with free hosting services.
@@ -144,6 +144,10 @@ void setup()
 
   // activate GPRS context - IP address will be assigned
   ret_val = gsm.EnableGPRS(CLOSE_AND_REOPEN);
+
+  // config socket so the data are send 100msec. after last byte is received from serial line
+  // so immediatelly to have very fast response
+  ret_val = gsm.IPEasyExt_ConfigSocket(1, 1, 300, 90, 600, 1/*100msec.*/);
 
   // enable user button
   gsm.EnableUserButton();
@@ -285,7 +289,8 @@ void loop()
         // so RET_S;OK; string has not been find
       }
 
-      // close the socket      
+      // close the socket so we will go back from "DATA state" to
+      // "AT command state"
       gsm.CloseSocket();
 
 
