@@ -192,6 +192,7 @@ class AT
 
     bool FindUntil(char *target, char *terminator, unsigned long timeout); // the same like findUntil() + setTimeout() in serial
     size_t ReadBytes(char *buffer, size_t length);
+    int  ReadBytesUntil(char terminator, char *buffer, size_t length);
 
 
     void RxInit(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,

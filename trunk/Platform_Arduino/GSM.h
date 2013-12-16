@@ -271,13 +271,44 @@ class GSM : public AT
     char OpenSocket(byte socket_type, uint16_t remote_port, char* remote_addr,
                     byte closure_type, uint16_t local_port);
     char CloseSocket(void);
+    
+
+    //=================================================================
+    // IPEasyExt = IP Easy Extended
+    // following functions are an alternative to previous functions
+    // and can be used in so called Multisocket mode
+    // most of them require SELINT 2(automatically turned on when #define GE836_GPS is enabled
+    // in Settings.h) mode and GSM module firmware
+    // version 7.02.03 and higher(this should be valid for all GE863-GPS GSM Playgroung shields)
+    //=================================================================
+    char IPEasyExt_InitGPRS(byte PDP_contect_identifier, char* apn, char* login, char* password);
+    char IPEasyExt_EnableOrDisableGPRS(byte PDP_contect_identifier, byte enable_disable);
+    char IPEasyExt_OpenSocket(byte connection_id, byte socket_type, uint16_t remote_port, char* remote_addr,
+                              byte closure_type, uint16_t local_port);
+    char IPEasyExt_OpenSocketInListenMode(byte connection_id, byte listen_state, uint16_t listen_port);
+    char IPEasyExt_AcceptSocket(byte connection_id);
+    char *IPEasyExt_GetLocalIPAddress(void);
+    char IPEasyExt_ConfigSocket(byte socket_id, 
+                                 byte context_id,  
+                                 uint16_t min_pkt_size,
+                                 uint16_t inactivity_tmout,
+                                 uint16_t connection_tmout,
+                                 uint16_t data_sending_tmout);
+
+    char IPEasyExt_SuspendSocket(byte connection_id);
+    char IPEasyExt_ResumeSocket(byte connection_id);
+    char IPEasyExt_CloseSocket(byte connection_id, byte send_ESC_seq_before);
+    char IPEasyExt_GetSocketStatus(byte connection_id);
+
+    //=================================================================
+    // Helping functions
+    //=================================================================
     void SendData(char* str_data);
     void SendData(const char* str_data);
     void SendDataF(PGM_P str_data);
     void SendData(byte* data_buffer, unsigned short size);
     uint16_t RcvData(uint16_t start_comm_tmout, uint16_t max_interchar_tmout, byte** ptr_to_rcv_data);
     signed short StrInBin(byte* p_bin_data, char* p_string_to_search, unsigned short size);
-
 
 
   private:
@@ -287,7 +318,9 @@ class GSM : public AT
     // global status - bits are used for representation of states
     byte module_status;
     // last value of speaker volume
-    byte last_speaker_volume; 
+    byte last_speaker_volume;
+    // current IP_address as a string - now we support only one IP address in one time
+    char IP_address[15+1]; // "XXX.XXX.XXX.XXX"
 };
 
 
