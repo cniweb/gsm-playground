@@ -219,6 +219,8 @@ void GSM::InitParam(byte group)
       InitSMSMemory();
       // select phonebook memory storage
       SendATCmdWaitRespF(PSTR("AT+CPBS=\"SM\""), 1000, 20, "OK", 5);
+      // set character set ISO 8859
+      SendATCmdWaitRespF(PSTR("AT+CSCS=\"8859-1\""), 1000, 20, "OK", 5);
       break;
   }
   
