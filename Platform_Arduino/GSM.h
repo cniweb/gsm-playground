@@ -23,7 +23,7 @@
 
 #include "Arduino.h"
 
-#define GSM_LIB_VERSION 107 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 108 // library version X.YY (e.g. 1.00)
 /*
     Version
     --------------------------------------------------------------------------
@@ -50,6 +50,8 @@
     107       - added functions finished with F which can be used with constant string placed
                 in the Flash memory to save RAM
               - SendDataF() added
+    --------------------------------------------------------------------------
+    108       - character set ISO 8859 activated during initialization
     --------------------------------------------------------------------------
 */
 
