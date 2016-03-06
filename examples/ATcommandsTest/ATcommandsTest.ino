@@ -17,7 +17,7 @@
  */
 
 
-#include "GSM.h"  
+#include "GSM_GE863.h"  
 
 #ifndef DEBUG_PRINT
   #error "!!! It is necessary to enable DEBUG_PRINT macro in the Setting.h !!!"

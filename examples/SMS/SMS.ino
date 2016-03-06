@@ -24,7 +24,7 @@
   SIM card please backup them up before inserting SIM card
   to the GSM Playground
 */
-#include "GSM.h"  
+#include "GSM_GE863.h"  
 
 // max length for SMS buffer(including also string terminator 0x00)
 // here SMS can have max. 99 characters (1 character is reserved for
