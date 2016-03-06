@@ -18,7 +18,7 @@
 
 
 #include "Arduino.h"
-#include "GSM.h"
+#include "GSM_GE863.h"
 
 extern "C" {
   #include <string.h>

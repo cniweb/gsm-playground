@@ -18,7 +18,7 @@
 #ifndef __GPS_GE863
 #define __GPS_GE863
 
-#include "GSM.h"
+#include "GSM_GE863.h"
 
 
 #define GPS_LIB_VERSION 100 // library version X.YY (e.g. 1.00)

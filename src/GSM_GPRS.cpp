@@ -17,7 +17,7 @@
 */  
 #include <avr/pgmspace.h>
 #include "GSM_GPRS.h"
-#include "GSM.h"
+#include "GSM_GE863.h"
 
 
 extern "C" {
