@@ -1,4 +1,4 @@
-Enter file contents here# Test build your arduino libraries with travis and the official arduino tool chain
+# Test build your arduino libraries with travis and the official arduino tool chain
 
 # assumes directory structure
 # /NullStream
